@@ -1,0 +1,1867 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Revisor &middot; Tesis v4 &middot; Acceso a la justicia migratoria aeroportuaria</title>
+<style>
+
+:root{
+  --bg:#fafaf7;
+  --surface:#ffffff;
+  --ink:#1a1a1a;
+  --muted:#5a5a55;
+  --accent:#d97706;
+  --accent-soft:#fffbeb;
+  --accent-strong:#92400e;
+  --blue:#2563eb;
+  --blue-soft:#f5f8ff;
+  --red:#dc2626;
+  --line:#e4e2da;
+  --hl-yellow:#fef08a;
+  --hl-green:#bbf7d0;
+  --hl-pink:#fbcfe8;
+  --anchor:#fde68a;
+  --shadow:0 2px 4px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+.toolbar{
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: #1a1a1a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.toolbar button{
+  background: #2a2a2a;
+  color: #ffffff;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  min-height: 36px;
+  font-family: inherit;
+  transition: background 120ms ease;
+}
+.toolbar button:hover{ background:#3a3a3a }
+.toolbar button.active{ background: var(--accent); border-color: var(--accent) }
+.toolbar a.tool-btn{
+  background: #2a2a2a;
+  color: #ffffff;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  min-height: 36px;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 120ms ease;
+}
+.toolbar a.tool-btn:hover{ background:#3a3a3a }
+.toolbar .swatch{
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 2px solid transparent; cursor: pointer; padding: 0;
+}
+.toolbar .swatch.hl-yellow{ background: var(--hl-yellow) }
+.toolbar .swatch.hl-green{ background: var(--hl-green) }
+.toolbar .swatch.hl-pink{ background: var(--hl-pink) }
+.toolbar .swatch:hover{ border-color: #ffffff }
+.toolbar .spacer{ flex: 0 0 8px }
+.toolbar #status{
+  margin-left: auto;
+  font-size: 13px;
+  color: #cfcfcf;
+  padding: 0 8px;
+}
+
+.layout{
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 0;
+  align-items: start;
+}
+
+main#doc-root{
+  position: relative;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 48px 80px;
+  background: var(--bg);
+}
+
+#ink-canvas{
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+body.pencil-mode #ink-canvas{ pointer-events: auto }
+body.pencil-mode #editable-content{ caret-color: transparent }
+
+header.doc-header{
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 16px;
+  margin-bottom: 28px;
+}
+header.doc-header h1{
+  font-size: 26px;
+  margin: 0 0 6px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+header.doc-header .subtitle{
+  color: var(--muted);
+  font-size: 15px;
+  margin: 0 0 14px;
+}
+.doc-meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+.badge{
+  display: inline-block;
+  background: #eeece4;
+  color: #3c3c38;
+  border: 1px solid #d8d6cd;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.badge-new{
+  background: #fff3d6;
+  color: #92400e;
+  border-color: #f5d28a;
+}
+.badge-new-inline{
+  display: inline-block;
+  background: #fff3d6;
+  color: #92400e;
+  border: 1px solid #f5d28a;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+.badge-warn{
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+.instrucciones{
+  background: #fffdf6;
+  border: 1px solid #f0e5c5;
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: #4a4a44;
+}
+.instrucciones h3{
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--accent-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.instrucciones ol{ margin: 6px 0 0 18px; padding: 0 }
+.instrucciones li{ margin: 2px 0 }
+
+#editable-content{
+  outline: none;
+  position: relative;
+  z-index: 1;
+}
+#editable-content:focus{
+  outline: none;
+}
+
+/* Contenido tesis */
+section.mapa, section.intro-resumen, section.capitulo, section.conclusiones-resumen{
+  margin: 0 0 36px;
+  padding: 24px 24px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+section h2{
+  font-size: 22px;
+  margin: 0 0 12px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+section h3{
+  font-size: 16px;
+  margin: 18px 0 8px;
+  font-weight: 600;
+  color: var(--accent-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+section p{ margin: 8px 0 }
+section ul, section ol{ padding-left: 22px; margin: 8px 0 }
+section li{ margin: 6px 0 }
+section blockquote{
+  margin: 10px 0;
+  padding: 10px 14px;
+  background: #f6f4ec;
+  border-left: 3px solid var(--accent);
+  font-style: italic;
+  color: #3c3c38;
+  border-radius: 0 6px 6px 0;
+}
+section .meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+}
+
+/* Mapa */
+.mapa-intro{
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+.mapa-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.mapa-card{
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: #fbfaf3;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  cursor: pointer;
+}
+.mapa-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+  border-color: #c9c5b3;
+}
+.mapa-card.has-new{
+  border-top: 3px solid var(--accent);
+}
+.mapa-card .card-num{
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-bottom: 6px;
+}
+.mapa-card h3{
+  font-size: 15px;
+  margin: 4px 0 6px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+.mapa-card p{
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.mapa-card .card-meta{
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Secciones nuevas resaltadas */
+.seccion-nueva{
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  padding: 14px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 14px 0;
+}
+.seccion-nueva h3{
+  color: var(--accent-strong);
+}
+
+/* Anchors y highlights */
+mark.h-yellow{ background: var(--hl-yellow); padding: 0 2px; border-radius: 2px }
+mark.h-green{ background: var(--hl-green); padding: 0 2px; border-radius: 2px }
+mark.h-pink{ background: var(--hl-pink); padding: 0 2px; border-radius: 2px }
+
+.anchor-marker{
+  background: var(--anchor);
+  padding: 0 2px;
+  box-shadow: 0 0 0 1px var(--accent);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 200ms ease, box-shadow 200ms ease;
+}
+.anchor-marker[data-active="1"]{
+  background: #fcd34d;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+ins.user-ins{
+  background: #d1fae5;
+  color: #064e3b;
+  text-decoration: none;
+  padding: 0 1px;
+  border-radius: 2px;
+}
+del.user-del{
+  background: #fee2e2;
+  color: #991b1b;
+  text-decoration: line-through;
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+/* Sidebar */
+aside.sidebar{
+  position: sticky;
+  top: 56px;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+  background: var(--surface);
+  border-left: 1px solid var(--line);
+  padding: 16px;
+}
+aside.sidebar h2{
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+#comments-list{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.comment-card{
+  background: #fffdf6;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+.comment-card.audio-card{
+  background: var(--blue-soft);
+  border-left-color: var(--blue);
+}
+.comment-card .card-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.comment-card .anchor-link{
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-strong);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+}
+.comment-card.audio-card .anchor-link{ color: var(--blue) }
+.comment-card .anchor-link:hover{ text-decoration: underline }
+.comment-card .delete{
+  font-size: 12px;
+  color: #999;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.comment-card .delete:hover{
+  color: var(--red);
+  background: #fee2e2;
+}
+.comment-card .body{
+  margin-top: 4px;
+  color: #3c3c38;
+  word-wrap: break-word;
+}
+.comment-card audio{
+  width: 100%;
+  margin-top: 6px;
+  display: block;
+}
+.comment-card .ts{
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+#empty-state{
+  color: var(--muted);
+  font-size: 13px;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Ocultar cards cuando el anchor está fuera de viewport */
+.comment-card.collapsed{ display: none; }
+
+/* Anchor de audio */
+.anchor-marker.audio-anchor {
+  background: transparent;
+  box-shadow: 0 0 0 2px #2563eb;
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+.anchor-marker.audio-anchor:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+.anchor-marker.audio-anchor::before { content: "🎙 "; font-size: 11px; }
+
+/* Responsive */
+@media (max-width: 900px){
+  .layout{
+    grid-template-columns: 1fr;
+  }
+  main#doc-root{
+    padding: 20px 18px 60px;
+  }
+  aside.sidebar{
+    position: relative;
+    top: 0;
+    max-height: none;
+    border-left: none;
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (pointer: coarse){
+  .toolbar button{
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+  .toolbar .swatch{
+    width: 36px;
+    height: 36px;
+  }
+  .comment-card .delete{ padding: 6px 10px }
+  .comment-card .anchor-link{ padding: 4px 0 }
+}
+
+@media print{
+  .toolbar, aside.sidebar, #ink-canvas{ display: none !important }
+  .layout{ grid-template-columns: 1fr }
+  main#doc-root{ max-width: 100%; padding: 0 }
+  section{ break-inside: avoid; box-shadow: none; border: 1px solid #ccc }
+}
+
+</style>
+</head>
+<body>
+
+<div class="toolbar" id="toolbar">
+  <button id="btn-comment" title="Agregar comentario sobre la selecci&oacute;n">&#128172; Comentario</button>
+  <button class="swatch hl-yellow" id="hl-yellow" title="Resaltar amarillo"></button>
+  <button class="swatch hl-green" id="hl-green" title="Resaltar verde"></button>
+  <button class="swatch hl-pink" id="hl-pink" title="Resaltar rosa"></button>
+  <span class="spacer"></span>
+  <button id="btn-pencil" title="L&aacute;piz (Apple Pencil)">&#9999;&#65039; L&aacute;piz</button>
+  <button id="btn-audio" title="Grabar comentario de audio">&#127908; Audio</button>
+  <span class="spacer"></span>
+  <button id="btn-undo" title="Deshacer">&#8630; Deshacer</button>
+  <button id="btn-export" title="Exportar anotaciones a JSON">&#11015; Exportar</button>
+  <button id="btn-import" title="Importar anotaciones desde JSON">&#11014; Importar</button>
+  <button id="btn-clear" title="Limpiar todo">&#128465; Limpiar</button>
+  <button class="tool-btn active" id="btn-track-changes" title="Marcar cambios al editar (verde=insert, rojo=delete)"><span class="ico">&#9986;</span> Cambios</button>
+  <span class="spacer"></span>
+  <a class="tool-btn" id="btn-full-thesis" href="revisor-tesis-v4-completa.html" target="_blank" rel="noopener" title="Abrir tesis completa interactiva en nueva pestaña"><span class="ico">&#128214;</span> Tesis completa</a>
+  <input type="file" id="file-import" accept=".json" style="display:none">
+  <span id="status">Listo</span>
+</div>
+
+<div class="layout">
+
+  <main id="doc-root">
+    <canvas id="ink-canvas"></canvas>
+
+    <header class="doc-header">
+      <h1>Tesis v4 &middot; Acceso a la justicia migratoria aeroportuaria</h1>
+      <p class="subtitle">Resumen explicativo para revisi&oacute;n &middot; Steph &middot; 2026-05-19</p>
+      <div class="doc-meta">
+        <span class="badge">72,133 palabras totales</span>
+        <span class="badge">~160 hojas</span>
+        <span class="badge badge-new">v4 reestructurada seg&uacute;n briefing</span>
+        <span class="badge">Hip&oacute;tesis: el marco NO garantiza</span>
+      </div>
+      <div class="instrucciones">
+        <h3>C&oacute;mo usar este revisor</h3>
+        <ol>
+          <li>Edita el texto directamente, como en Google Docs. El estado se autoguarda en este iPad.</li>
+          <li>Selecciona texto y toca un color para resaltar (amarillo, verde, rosa).</li>
+          <li>Selecciona texto y toca &laquo;Comentario&raquo; para anclar una nota; aparece en la barra lateral.</li>
+          <li>Toca &laquo;L&aacute;piz&raquo; para activar el modo Apple Pencil y dibujar sobre el documento. T&oacute;calo de nuevo para volver a editar texto.</li>
+          <li>Toca &laquo;Audio&raquo; para grabar un comentario de voz anclado a la secci&oacute;n actual. Vuelve a tocarlo para detener.</li>
+          <li>Cuando termines, toca &laquo;Exportar&raquo; para bajar un JSON con todas tus anotaciones y m&aacute;ndalo a Pedro.</li>
+        </ol>
+      </div>
+    </header>
+
+    <div contenteditable="true" id="editable-content" spellcheck="false">
+<!-- ============ mapa.html ============ -->
+<section class="mapa">
+  <h2>Mapa de la tesis</h2>
+  <p class="mapa-intro">5 capítulos siguiendo secuencia caracterización, sistematización, análisis, diagnóstico, propuesta.</p>
+  <div class="mapa-grid">
+    <a class="mapa-card" href="#cap-1">
+      <span class="card-num">I</span>
+      <h3>Movilidad y control migratorio</h3>
+      <p>Aeropuerto como espacio jurídico, sujetos, momentos críticos.</p>
+      <span class="card-meta">3 secciones · 10,257 palabras</span>
+    </a>
+    <a class="mapa-card has-new" href="#cap-2">
+      <span class="card-num">II</span>
+      <h3>Estándar constitucional, interamericano e internacional</h3>
+      <p>Marco normativo, interamericano, debida diligencia y buena administración.</p>
+      <span class="card-meta">6 secciones · 12,349 palabras</span>
+      <span class="badge-new-inline">2 nuevas: §2.5, §2.6</span>
+    </a>
+    <a class="mapa-card has-new" href="#cap-3">
+      <span class="card-num">III</span>
+      <h3>Régimen jurídico interno y procedimiento</h3>
+      <p>LM, Reglamento, LFPA, garantías mínimas, aerolíneas.</p>
+      <span class="card-meta">6 secciones · 13,467 palabras</span>
+      <span class="badge-new-inline">1 nueva: §3.6</span>
+    </a>
+    <a class="mapa-card" href="#cap-4">
+      <span class="card-num">IV</span>
+      <h3>Diagnóstico de brechas</h3>
+      <p>Mapa por etapa, barreras estructurales, evidencia, mecanismos de exigibilidad.</p>
+      <span class="card-meta">5 secciones · 10,319 palabras</span>
+    </a>
+    <a class="mapa-card" href="#cap-5">
+      <span class="card-num">V</span>
+      <h3>Propuesta: protocolo mínimo (PUGREMA)</h3>
+      <p>Acuerdo administrativo INM, fases 0-4h y 4-24h, KPIs, implementación.</p>
+      <span class="card-meta">7 secciones · 10,292 palabras</span>
+    </a>
+  </div>
+</section>
+
+
+<!-- ============ introduccion.html ============ -->
+<section class="intro-resumen" data-section-id="introduccion" id="introduccion">
+  <h2>Introducción</h2>
+
+  <div class="meta">
+    <span class="badge">7 secciones (0.1-0.7)</span>
+    <span class="badge">3,375 palabras</span>
+  </div>
+
+  <div class="problema">
+    <h3>Planteamiento (0.1)</h3>
+    <p>El ordenamiento mexicano reconoce con densidad formal el acceso a la justicia de las personas extranjeras, pero la praxis aeroportuaria lo desmiente. El problema es la distancia entre reconocimiento normativo y garantía efectiva al interior de la zona estéril: lagunas reglamentarias, praxis administrativa informal del INM e inaccesibilidad material del recurso judicial en ventanas de horas. Conforme al Boletín de la UPM-SEGOB, AICM, AIFA, Cancún, Guadalajara, Monterrey y Tijuana absorben más del noventa por ciento del flujo internacional y concentran los eventos de inadmisión, rechazo y retorno asistido. La falla no es vacío formal sino denegación sistémica estructural.</p>
+  </div>
+
+  <div class="preguntas">
+    <h3>Pregunta principal (0.2)</h3>
+    <blockquote>¿En qué medida el ordenamiento jurídico mexicano vigente garantiza el derecho humano de acceso a la justicia de las personas extranjeras en zonas aeroportuarias?</blockquote>
+    <p class="sub">5 preguntas subordinadas, una por capítulo (naturaleza del espacio y sujetos; contenido normativo; régimen procedimental; brechas empíricas; instrumento jurídico-operativo de corrección).</p>
+  </div>
+
+  <div class="hipotesis">
+    <h3>Hipótesis (0.4)</h3>
+    <blockquote>El ordenamiento mexicano vigente al abril de 2026 NO garantiza de manera efectiva el derecho. El reconocimiento formal coexiste con lagunas reglamentarias, praxis administrativa informal y discrecional del INM, inaccesibilidad material del amparo en ventanas cortas y ausencia de controles externos efectivos.</blockquote>
+    <p>La hipótesis es unitaria con dos caras. Primero, insuficiencia: el derecho integra el parámetro de regularidad pero no se asegura materialmente en el recinto aeroportuario. Segundo, identificación de causa estructural: convergencia de lagunas reglamentarias, praxis informal, inaccesibilidad del amparo y ausencia de controles. Tiene orientación propositiva: respuesta reglamentaria adoptable por acuerdo administrativo INM, sin requerir reforma legislativa previa.</p>
+  </div>
+
+  <div class="metodo">
+    <h3>Metodología (0.5)</h3>
+    <p>Dogmática jurídica con alcance analítico-crítico (Courtis, Ferrajoli). 6 métodos complementarios: dogmático, exegético, sistemático, teleológico, hermenéutico-constitucional y análisis jurisprudencial. Enfoque de derechos humanos transversal (ACNUDH) y principio pro persona como criterio rector (Castilla). Técnicas de investigación documental y análisis de criterios sobre fuentes primarias y secundarias. Corte normativo abril 2026. Sin trabajo empírico de campo: limitación deliberada, justificada por el alcance dogmático del trabajo, con línea empírica futura identificada en conclusiones.</p>
+  </div>
+
+  <div class="objetivos">
+    <h3>Objetivos específicos (0.3)</h3>
+    <ol>
+      <li><strong>Caracterizar</strong> movilidad internacional y control migratorio aeroportuario (Cap I)</li>
+      <li><strong>Reconstruir</strong> el estándar constitucional, interamericano e internacional (Cap II)</li>
+      <li><strong>Sistematizar</strong> el régimen jurídico interno y procedimiento (Cap III)</li>
+      <li><strong>Diagnosticar</strong> las brechas empíricas (Cap IV)</li>
+      <li><strong>Formular</strong> el protocolo mínimo (PUGREMA) como respuesta (Cap V)</li>
+    </ol>
+  </div>
+
+  <div class="revisar">
+    <h3>Qué buscar al revisar la introducción</h3>
+    <ul>
+      <li>¿La hipótesis está suficientemente filosa para tu defensa, o conviene endurecer la afirmación de "denegación sistémica" desde la introducción?</li>
+      <li>¿Las 5 preguntas subordinadas se mapean 1:1 con los 5 capítulos sin solapamiento, en particular entre la pregunta 2 (contenido normativo) y la pregunta 3 (régimen procedimental)?</li>
+      <li>¿La delimitación aeroportuaria (0.6), con su precisión negativa (no fronteras terrestres ni COMAR ordinaria) y su precisión instrumental (acuerdo administrativo sin reforma legal previa), es defendible frente a un cuestionamiento de alcance?</li>
+      <li>¿La metodología dogmática (0.5) justifica suficientemente la ausencia de trabajo de campo, o el sínodo puede leer la limitación como debilidad estructural en lugar de delimitación deliberada?</li>
+      <li>¿La triple tensión planteada en 0.1 (constitucional, operativa, empírica) se sostiene como andamiaje del problema o suena retórica?</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============ cap-1.html ============ -->
+<section class="capitulo" data-section-id="cap-1" id="cap-1">
+  <h2>Capítulo I · La movilidad internacional y el control migratorio aeroportuario</h2>
+
+  <div class="meta">
+    <span class="badge">3 secciones</span>
+    <span class="badge">10,257 palabras</span>
+    <span class="badge">v4: consolidado de 7 a 3 secciones</span>
+  </div>
+
+  <div class="argumento">
+    <h3>Argumento central</h3>
+    <p>El capítulo sostiene que el aeropuerto internacional no es una zona de excepción jurídica sino territorio nacional pleno bajo la jurisdicción del Estado mexicano, conforme al artículo 42 de la CPEUM y al criterio del Comité de Derechos Humanos. La ficción importada de la <em>non-entry fiction</em> carece de sustento en el ordenamiento mexicano y opera, cuando se invoca, como cobertura informal para reducir garantías. Lo que sí tiene el aeropuerto son coordenadas fácticas singulares (compresión temporal de horas, aislamiento físico, asimetría informativa radical, barreras lingüísticas y consumación rápida del acto vía abordaje del vuelo de retorno) que tensionan la operatividad del bloque de constitucionalidad sin desactivarlo. La tesis fija el campo conceptual donde el Capítulo II construirá el estándar aplicable: la persona en movilidad humana es titular pleno de derechos humanos desde el desembarque, y todo acto del INM en el filtro está sujeto a control judicial.</p>
+  </div>
+
+  <div class="desarrollo">
+    <h3>Cómo lo desarrolla</h3>
+    <ul>
+      <li><strong>1.1 Movilidad humana y migración:</strong> distingue movilidad humana como categoría amplia de derechos humanos (Corte IDH, SCJN) frente a migración como subcategoría administrativa con régimen cerrado de la LM (art. 52). La elección terminológica condiciona el procedimiento aeroportuario: si la autoridad se concibe solo como controladora, omite evaluación de vulnerabilidad y canalización; si se concibe como gestora de movilidad humana, integra estos deberes.</li>
+      <li><strong>1.2 Sujetos en el filtro:</strong> tres tipologías con consecuencias jurídicas diferenciadas: persona con intención de internación (visitante, residente temporal, residente permanente, con motivación reforzada para el residente), persona en tránsito o conexión (factor tiempo y riesgo de incomunicación), y solicitante de protección internacional (activación de competencia COMAR y <em>non-refoulement</em>). Las barreras situacionales (idioma, salud, edad, discapacidad, interseccionalidad) se integran transversalmente dentro de cada subtipo, sin reificarlas como categorías autónomas.</li>
+      <li><strong>1.3 Aeropuerto como espacio jurídico:</strong> establece la territorialidad plena con base en el artículo 42 CPEUM y refuta la ficción de extraterritorialidad; distingue cuatro zonas funcionales (primaria, secundaria, espera, estación migratoria) con regímenes operativos diferenciados pero estándar jurídico único; secuencia los cinco momentos críticos (filtro, segunda revisión, inadmisión, retorno, canalización); mapea actores (INM, aerolíneas con <em>carrier sanctions</em>, AFAC, concesionarios, consulados, COMAR, CNDH); y propone una definición operativa de acceso a la justicia descompuesta en siete criterios medibles (información comprensible, intérprete idóneo, comunicación externa, defensa técnica, registro, revisión efectiva, remedio).</li>
+    </ul>
+  </div>
+
+  <div class="fuentes">
+    <h3>Citas y fuentes clave</h3>
+    <ul>
+      <li>Art. 1°, 14, 16, 17, 27, 29 y 42 CPEUM (territorialidad y bloque de constitucionalidad)</li>
+      <li>OC-21/14, OC-25/18, OC-18/03 y OC-16/99 Corte IDH (movilidad humana, jurisdicción <em>de facto</em>, debido proceso lingüístico)</li>
+      <li><em>Familia Pacheco Tineo vs. Bolivia</em> (2013) y <em>Vélez Loor vs. Panamá</em> (2010) Corte IDH (catálogo mínimo de garantías procesales en procedimientos migratorios)</li>
+      <li>Comité DH ONU, Observación General No. 31, párr. 10 (zonas de tránsito de aeropuertos bajo jurisdicción)</li>
+      <li>SCJN, Amparo en Revisión 481/2024 y <em>Protocolo para Juzgar Casos que Involucren Personas Migrantes</em> (2021)</li>
+      <li>LM (arts. 19, 20, 37, 43, 52, 54, 60, 99, 100, 106, 107, 118-120, 146); RLM (arts. 60, 78, 109); LRPCAP (arts. 6° y 21)</li>
+      <li>Convención sobre el Estatuto de los Refugiados (1951), art. 33; CVRC (1963), art. 36</li>
+      <li>CNDH, Recomendaciones 86/2024 y 75/2025 dirigidas al INM</li>
+      <li>Doctrina: Fernández Ruiz (2019), Carbonell (2023), Pelayo Moller (2019), González Le Saux (2021), Cappelletti y Garth (1996), Ferrer Mac-Gregor y Herrera García (2013)</li>
+    </ul>
+  </div>
+
+  <div class="cambios">
+    <h3>Qué cambió vs v3.1</h3>
+    <p>Consolidación estructural de 7 a 3 secciones conforme al briefing v4. La sección §1.7 Síntesis fue eliminada; sus contenidos quedan reabsorbidos en el cierre de 1.3 que dispara hacia el Capítulo II. Las barreras de vulnerabilidad, que en v3.1 ocupaban sección propia, ahora se distribuyen como elementos transversales dentro de cada subtipo de sujeto en 1.2 (intención de internación, tránsito, protección internacional), siguiendo el enfoque de barreras situacionales del Protocolo SCJN y evitando la reificación identitaria. La refutación de la ficción de extraterritorialidad se reubica dentro de 1.3.2 como cuestión de naturaleza del espacio jurídico, ligada directamente al artículo 42 CPEUM y a la tipología funcional de zonas. Los siete criterios operativos de acceso a la justicia se consolidan al final de 1.3.4 como puente dogmático al Capítulo II.</p>
+  </div>
+
+  <div class="revisar">
+    <h3>Qué buscar al revisar</h3>
+    <ul>
+      <li>¿La transición de 1.1 (delimitación conceptual movilidad/migración) a 1.2 (tipología de sujetos) está fluida o se siente como salto temático?</li>
+      <li>¿La distribución transversal de barreras situacionales dentro de cada subtipo en 1.2 funciona, o se nota que vinieron de una sección autónoma comprimida?</li>
+      <li>¿El cierre de 1.3.4 (siete criterios operativos) dispara con claridad al Capítulo II, o pisa terreno que el II debería desarrollar desde cero?</li>
+      <li>¿Se nota el capítulo muy compactado o pierde fuerza argumentativa frente a v3.1, en particular en el tratamiento del residente permanente (1.2.1) y de la zona de espera (1.3.2)?</li>
+      <li>¿Las 14 citas marcadas POR VERIFICAR (Fernández Ruiz, Rodríguez Chávez, González Le Saux, Carbonell, Pelayo Moller, SCJN AR 481/2024, ADR 2424/2011, AR 388/2019, ACNUR Manual, CNDH 86/2024 y 75/2025, Reglamento Interior SEGOB, Sin Fronteras, LGDNNA) están señaladas con criterio uniforme y no contaminan tesis estructurales?</li>
+      <li>¿La refutación de la ficción de extraterritorialidad en 1.3.2 es lo bastante contundente para sostener el bloque de constitucionalidad pleno, o necesita más músculo jurisprudencial?</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============ cap-2.html ============ -->
+<section class="capitulo" data-section-id="cap-2" id="cap-2">
+  <h2>Capítulo II · Estándar constitucional, interamericano e internacional</h2>
+
+  <div class="meta">
+    <span class="badge">6 secciones</span>
+    <span class="badge">12,349 palabras</span>
+    <span class="badge badge-new">2 secciones NUEVAS: §2.5 y §2.6</span>
+  </div>
+
+  <div class="argumento">
+    <h3>Argumento central</h3>
+    <p>El capítulo confronta el ordenamiento, no lo describe. Reconstruye el parámetro de regularidad exigible al procedimiento de inadmisión aeroportuaria desde cuatro fuentes vinculantes (Constitución reformada en 2011, recurso efectivo en sede administrativa, corpus interamericano y derecho internacional ratificado por México) y le añade dos categorías analíticas todavía no integradas operativamente en México: la debida diligencia reforzada y el enfoque de buena administración pública. La articulación de esas seis capas configura qué debería ocurrir en una sala de segunda revisión para que pueda afirmarse que el Estado cumple con el estándar de acceso a la justicia. Ese estándar es el contraste contra el cual se medirá el régimen interno (Capítulo III) y la evidencia empírica de la praxis (Capítulo IV); el déficit denunciado es estructural, no coyuntural.</p>
+  </div>
+
+  <div class="desarrollo">
+    <h3>Cómo lo desarrolla</h3>
+    <ul>
+      <li><strong>2.1 Constitución mexicana:</strong> articula cinco preceptos como piso normativo. Artículo 1° con sus cuatro mandatos (universalidad, bloque de constitucionalidad, pro persona, control difuso); artículo 14 garantía de audiencia con sus cuatro formalidades esenciales; artículo 16 fundamentación, motivación congruente y motivación reforzada; artículo 17 acceso a la justicia en sus cuatro dimensiones acumulativas (prontitud, completitud, imparcialidad, gratuidad); cláusula antidiscriminatoria con origen nacional como categoría sospechosa.</li>
+      <li><strong>2.2 Recurso efectivo en sede administrativa:</strong> formula cinco exigencias del recurso efectivo, evalúa el recurso de revisión de la LFPA (artículos 83 a 96) y muestra su ineficacia material en cuatro frentes (plazo de quince días, ausencia de efecto suspensivo automático, dependencia jerárquica, motivación replicada). Conecta con LFPCA y juicio de amparo (incluida la Tesis I.1o.A.217 A sobre actos de transportistas) para concluir que el sistema está estructuralmente diseñado para llegar tarde.</li>
+      <li><strong>2.3 Sistema interamericano:</strong> articula CADH artículos 8, 25, 22 (en sus párrafos 7, 8 y 9), 1.1 y 24. En 2.3.1 traduce al escenario aeroportuario las opiniones consultivas OC-16/99 (asistencia consular), OC-18/03 (ius cogens de no discriminación), OC-21/14 (non-refoulement como ius cogens y detención como ultima ratio) y OC-25/18 (deber de canalización a COMAR). Hace lo mismo con Vélez Loor 2010, Familia Pacheco Tineo 2013 (nueve estándares del debido proceso migratorio), Pueblo Indígena Kichwa 2012 (participación efectiva) y Nadege Dorzema 2012 (prohibición de expulsiones colectivas y estandarizadas).</li>
+      <li><strong>2.4 Derecho internacional aplicable:</strong> 2.4.1 Convención de Viena sobre Relaciones Consulares artículo 36.1.b) con tres deberes operativos, anclada en LaGrand y Avena. 2.4.2 Convención de 1951 (artículos 33.1 y 31), Protocolo de 1967, Declaración de Cartagena incorporada por LRPCAP artículo 13, y arquitectura interna LRPCAP artículos 2, 5 y 6 con el carácter declarativo del reconocimiento. 2.4.3 PIDCP artículos 7, 9, 13, 14 con OG-31 y OG-32 del Comité, Convención contra la Tortura artículo 3, CEDAW y CRC.</li>
+      <li><strong>2.5 Debida diligencia y obligaciones positivas (NUEVA):</strong> reconstruye la doctrina interamericana desde Velásquez Rodríguez 1988 (cuatro obligaciones de prevenir, investigar, sancionar, reparar), Ximenes Lopes 2006 (posición de garante en situación de vulnerabilidad) y Campo Algodonero 2009 (debida diligencia reforzada cuando concurren patrón estructural documentado y grupo identificable). Aplica los cuatro deberes operativos (prevención, investigación, medidas positivas, protección reforzada) al escenario aeroportuario, leyendo las recomendaciones CNDH 86/2024, 111/2023 y 154/2024 como evidencia del patrón que activa la diligencia reforzada.</li>
+      <li><strong>2.6 Buena administración pública (NUEVA):</strong> trae el artículo 41 de la Carta UE como referencia comparada (no como derecho aplicable), ancla el estándar en LFPA artículos 3, 13, 16 y 17, y en los principios rectores de LGRA artículo 7. Cita la tesis aislada I.18o.A.14 A del Décimo Octavo Tribunal Colegiado como apertura jurisprudencial reciente, y formula seis principios operativos (legalidad, eficiencia con celeridad, transparencia, imparcialidad subjetiva y objetiva, proporcionalidad, motivación congruente). Cierra con la síntesis exigible y dispara al Capítulo III.</li>
+    </ul>
+  </div>
+
+  <div class="fuentes">
+    <h3>Citas y fuentes clave</h3>
+    <ul>
+      <li>CPEUM artículos 1, 11, 14, 16, 17, 33</li>
+      <li>CADH artículos 1.1, 8, 22 (párrafos 7, 8 y 9), 24, 25</li>
+      <li>Convención de Viena sobre Relaciones Consulares artículo 36.1.b); LaGrand 2001 y Avena 2004 (CIJ)</li>
+      <li>Convención de 1951 artículos 31 y 33.1; Protocolo de 1967; Declaración de Cartagena 1984; LRPCAP artículos 2, 5, 6, 13</li>
+      <li>PIDCP artículos 7, 9, 13, 14; Observación General 31 (2004) y Observación General 32 (2007) del Comité de Derechos Humanos; Convención contra la Tortura artículo 3; CEDAW; CRC artículos 3 y 22</li>
+      <li>Corte IDH opiniones consultivas: OC-16/99, OC-18/03, OC-21/14, OC-25/18</li>
+      <li>Corte IDH casos: Velásquez Rodríguez 1988, Castañeda Gutman vs. México 2008, Apitz Barbera 2008, Ximenes Lopes 2006, Campo Algodonero 2009, Vélez Loor 2010, Pueblo Indígena Kichwa de Sarayaku 2012, Nadege Dorzema 2012, Familia Pacheco Tineo 2013, Radilla Pacheco 2009</li>
+      <li>SCJN: Varios 912/2010, Contradicción de Tesis 293/2011, P./J. 47/95, P./J. 50/2000, P./J. 9/2016, 1a./J. 15/2022, 1a./J. 103/2017, Amparos en Revisión 275/2019, 282/2019 y 481/2024</li>
+      <li>TCC: Tesis I.1o.A.217 A (11a.) y Tesis I.18o.A.14 A (11a.)</li>
+      <li>LFPA artículos 3, 13, 16, 17, 83 a 96; LFPCA artículo 13; Ley de Amparo artículos 6, 7, 125 a 158; LGRA artículo 7; Carta UE artículo 41</li>
+      <li>CNDH recomendaciones 86/2024, 111/2023 y 154/2024</li>
+      <li>Doctrina: Carbonell 2012, Caballero Ochoa 2013, Ferrer Mac-Gregor 2011, Ferrer Mac-Gregor y Herrera García 2013, Salazar Ugarte 2013, Carpizo 2011, Fix-Zamudio 2002</li>
+    </ul>
+  </div>
+
+  <div class="cambios">
+    <h3>Qué cambió vs v3.1</h3>
+    <p>Dos secciones completamente nuevas: §2.5 sobre debida diligencia y obligaciones positivas, y §2.6 sobre buena administración pública. Reorganización del marco interamericano para que las opiniones consultivas y los casos contenciosos operen como estándar exigible traducido al escenario aeroportuario (la nueva subsección 2.3.1) en lugar de funcionar como relato histórico. Desagregación del derecho internacional en tres subsecciones temáticas (2.4.1 consular, 2.4.2 protección internacional, 2.4.3 régimen general universal). Eliminadas la introducción 2.1 y la síntesis 2.7 redundantes. El peso del capítulo bajó ligeramente (-466 palabras) porque se quitó repetición y se invirtió densidad en las dos secciones nuevas, que ahora cargan el aporte original del capítulo.</p>
+  </div>
+
+  <div class="seccion-nueva" data-section-id="cap-2-sec-2-5">
+    <h3>Análisis adicional · §2.5 Debida diligencia (NUEVA)</h3>
+    <p>La sección construye la categoría en tres pasos. Primero, Velásquez Rodríguez 1988 párrafo 166 ancla el deber de garantía del artículo 1.1 CADH como obligación de organizar todo el aparato institucional para asegurar el libre y pleno ejercicio de los derechos, y deriva las cuatro obligaciones canónicas (prevenir, investigar, sancionar, reparar). El texto insiste en que el precedente no se agota en su contexto fáctico de desaparición forzada, sino que articula la estructura misma de la responsabilidad internacional. Segundo, Ximenes Lopes 2006 párrafos 89 a 99 introduce la posición de garante: cuando el Estado ejerce control efectivo sobre la persona en situación de vulnerabilidad, el deber de garantía se intensifica. El argumento se transfiere al INM en sala de segunda revisión sobre la base del control efectivo y de la vulnerabilidad situacional acumulada (idioma, ausencia de redes, presión temporal, asimetría informativa). Tercero, Campo Algodonero 2009 párrafos 252 a 258 consolida la diligencia reforzada cuando concurren patrón estructural documentado y grupo identificable en vulnerabilidad. La operación clave es trasladar la estructura argumental del caso de violencia de género al escenario migratorio aeroportuario, usando las recomendaciones CNDH 86/2024, 111/2023 y 154/2024 como evidencia del patrón. Hay cuatro citas pendientes de verificación que Steph debería cotejar: los párrafos exactos en Ximenes Lopes (89 a 99) y Campo Algodonero (252 a 258) contra las versiones oficiales, y el cotejo de párrafos en Vélez Loor que opera por argumento a fortiori dentro de la sección.</p>
+  </div>
+
+  <div class="seccion-nueva" data-section-id="cap-2-sec-2-6">
+    <h3>Análisis adicional · §2.6 Buena administración pública (NUEVA)</h3>
+    <p>La sección abre con la Carta UE artículo 41 como referencia comparada y advierte expresamente que sostener su aplicabilidad directa al ordenamiento mexicano sería un error metodológico. La Carta vincula a las instituciones de la Unión y, en el ámbito del derecho de la Unión, a los Estados miembros; su utilidad aquí es proveer el modelo más acabado de positivización del derecho como derecho subjetivo justiciable, identificando cinco componentes (imparcialidad, plazo razonable, derecho a ser oído, acceso al expediente, motivación). El anclaje doméstico se construye sobre LFPA artículos 3 (dieciséis elementos del acto administrativo), 13 (principios de economía, celeridad, eficacia, legalidad, publicidad y buena fe), 16 y 17 (deberes de tramitación y régimen de plazos), articulados con LGRA artículo 7 (once principios rectores de los servidores públicos). La sección sostiene, citando a Salazar Ugarte 2013, que tras la reforma de 2011 los elementos de la LFPA deben leerse como expresión administrativa de los derechos humanos. Cita además la tesis aislada I.18o.A.14 A del Décimo Octavo Tribunal Colegiado de 2023, valorada como apertura jurisprudencial aunque no obligatoria. Cierra con seis principios operativos (legalidad, eficiencia y celeridad balanceada con garantías, transparencia, imparcialidad subjetiva y objetiva, proporcionalidad y motivación congruente) y conecta el principio de imparcialidad objetiva con el artículo 78 del Reglamento de la Ley de Migración por la carga de costos del retorno sobre la aerolínea. Citas pendientes: contenido exacto de LFPA artículos 16 y 17, registro digital de la tesis I.18o.A.14 A y paginación de Salazar Ugarte 2013.</p>
+  </div>
+
+  <div class="revisar">
+    <h3>Qué buscar al revisar</h3>
+    <ul>
+      <li>¿La transición 2.4 a 2.5 a 2.6 fluye como progresión normativa o se siente como pegado de dos secciones nuevas a un capítulo previamente cerrado?</li>
+      <li>¿§2.5 abusa de Velásquez Rodríguez, Ximenes Lopes y Campo Algodonero al transferir argumentos originados en contextos muy distintos (desaparición forzada, salud mental, feminicidio) al escenario migratorio aeroportuario, o el argumento de la posición de garante y del patrón estructural sostiene la transferencia?</li>
+      <li>¿§2.6 deja inequívocamente claro que la Carta UE es referencia comparada y no derecho aplicable, especialmente para un lector que pueda querer atacar el capítulo por uso indebido de fuentes extranjeras?</li>
+      <li>¿Las citas pendientes están bien priorizadas? Las críticas para la solidez argumental son LFPA artículos 16 y 17 (contenido exacto), los párrafos de Ximenes Lopes 89 a 99 y Campo Algodonero 252 a 258, y el registro digital de los amparos de revisión 275/2019, 282/2019 y 481/2024.</li>
+      <li>¿El cierre de §2.6 (sección 2.6.5) dispara correctamente al Capítulo III sin anticipar contenido que corresponda al Capítulo IV?</li>
+      <li>¿La articulación CNDH 86/2024, 111/2023 y 154/2024 aparece varias veces en el capítulo como evidencia del patrón estructural; conviene que la cita esté completa la primera vez y se abrevie después?</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============ cap-3.html ============ -->
+<section class="capitulo" data-section-id="cap-3" id="cap-3">
+  <h2>Capítulo III · Régimen jurídico interno y diseño procedimental</h2>
+
+  <div class="meta">
+    <span class="badge">6 secciones</span>
+    <span class="badge">13,467 palabras</span>
+    <span class="badge badge-warn">El más grande del documento</span>
+    <span class="badge badge-new">1 sección NUEVA: §3.6 Aerolíneas</span>
+  </div>
+
+  <div class="argumento">
+    <h3>Argumento central</h3>
+    <p>El Capítulo III aterriza el derecho positivo mexicano en el escenario aeroportuario concreto. A diferencia del Capítulo II, que sistematiza el marco jurídico de forma estática y jerárquica, aquí se reconstruye el procedimiento en acción: la secuencia que ejecuta el Instituto Nacional de Migración desde que el pasajero desciende del avión hasta que se firma la resolución. El capítulo conecta la Ley de Migración, su Reglamento, la Ley Federal de Procedimiento Administrativo, la jurisprudencia de la Suprema Corte y de la Corte Interamericana, y la normativa orgánica, con el estándar reconstruido en el Capítulo II. El régimen formal queda expuesto en todas sus piezas, lo que prepara el terreno para que el contraste con la praxis documentado en el Capítulo IV haga evidente la denegación estructural.</p>
+  </div>
+
+  <div class="desarrollo">
+    <h3>Cómo lo desarrolla</h3>
+    <ul>
+      <li><strong>3.1 LM y Reglamento:</strong> arts. 18, 36, 37, 38, 43, 44, 47, 48, 96, 97 LM más 75, 76, 78 RLM. Momentos del procedimiento (filtro primario, segunda revisión, alojamiento), competencias del agente federal de migración y catálogo cerrado de cuatro decisiones posibles: admisión, inadmisión o rechazo, retorno asistido, deportación y canalización a COMAR o a estación migratoria.</li>
+      <li><strong>3.2 Segunda revisión:</strong> caracterización como diligencia administrativa de verificación, no acto penal. Discrecionalidad reglada del agente, límites temporales (techo de cuatro horas del art. 60 RLM) y espaciales (territorialidad plena de la zona estéril), y cinco obligaciones mínimas: información, registro, no discriminación, debida diligencia e imparcialidad.</li>
+      <li><strong>3.3 Acto administrativo:</strong> requisitos de validez aplicables a inadmisión, retorno y canalización. Competencia, voluntad sin vicios, objeto lícito, fundamentación, motivación reforzada cuando se afectan derechos humanos, notificación efectiva, forma del acta, idioma comprensible y firma. LFPA arts. 3, 5, 6, 8, 13, 14, 15, 16, 35, 36. Análisis específico de cómo opera la presunción de legalidad como blindaje de facto frente al control jurisdiccional.</li>
+      <li><strong>3.4 Garantías procedimentales mínimas:</strong> 3.4.1 información comprensible y traducción o intérprete (art. 9 PIDCP, art. 8.2.a y 16 CADH, Vélez Loor, OC-16/99); 3.4.2 comunicación externa con familia, defensa y consulado (art. 36 Convención de Viena, OC-16/99, Amparo en Revisión 481/2024); 3.4.3 derecho de audiencia con oportunidad real de aportar elementos; 3.4.4 registro y trazabilidad operando como presunción contra la autoridad.</li>
+      <li><strong>3.5 Normativa orgánica:</strong> LOAPF (art. 27), Reglamento Interior de la SEGOB, Reglamento Interior del INM, Manual de Organización del INM, acuerdos administrativos y lineamientos internos. Análisis de la ejecución, notificación y cierre procedimental que culminan el ciclo. Tensión entre instrumentos publicados y guías operativas no publicadas que rigen la conducta cotidiana del agente.</li>
+      <li><strong>3.6 Interacción con aerolíneas (NUEVA):</strong> Anexo 9 del Convenio de Chicago, Ley de Aviación Civil, Ley de Aeropuertos, art. 38 de la LM y régimen sancionatorio al transportista. Custodia documental y corporal del pasajero rechazado, coordinación INM-aerolínea, función pública delegada de facto, doctrinas shifting borders y pre-flight clearance.</li>
+    </ul>
+  </div>
+
+  <div class="fuentes">
+    <h3>Citas y fuentes clave</h3>
+    <ul>
+      <li>Ley de Migración arts. 2, 6, 11, 14, 18, 20, 35, 36, 37, 38, 43, 44, 47, 48, 54, 55, 66, 67, 68-111, 118-131, 136, 145-147, 159-162</li>
+      <li>Reglamento de la Ley de Migración arts. 14, 59, 60, 75, 76, 78, 109, 230</li>
+      <li>LFPA arts. 3, 5, 6, 8, 13, 14, 15, 16, 35, 36, 39, 40, 83-96</li>
+      <li>CADH arts. 8.1, 8.2.a, 16, 25; PIDCP arts. 9 y 12; Convención de Viena sobre Relaciones Consulares art. 36</li>
+      <li>OC-16/99 Corte IDH; Vélez Loor vs. Panamá (2010); Familia Pacheco Tineo vs. Bolivia (2013); Nadege Dorzema vs. República Dominicana (2012)</li>
+      <li>SCJN: Amparo en Revisión 275/2019; Amparo en Revisión 282/2019; Amparo en Revisión 481/2024; Jurisprudencia 1a./J. 15/2022; Jurisprudencia 1a./J. 113/2023 (11a.); Tesis 1a. CCCXX/2023; P./J. 9/2016; Protocolo SCJN 2021</li>
+      <li>Anexo 9 Convenio Chicago 1944/2017; Ley de Aviación Civil 1995; Ley de Aeropuertos 1995</li>
+      <li>LOAPF art. 27; Reglamento Interior SEGOB 2023; Reglamento Interior del INM; Manual de Organización del INM</li>
+      <li>CNDH Recomendaciones 86/2024 y 75/2025; ACNUR Manual de procedimientos 2019</li>
+      <li>Doctrina: Fernández Ruiz (2019); Carbonell (2023); Pelayo Moller (2019); Sin Fronteras IAP (2022)</li>
+    </ul>
+  </div>
+
+  <div class="cambios">
+    <h3>Qué cambió vs v3.1</h3>
+    <p>Se incorpora una sección completamente nueva, §3.6 Interacción con aerolíneas, con aproximadamente 1,800 palabras. Se eliminaron la introducción autónoma §3.1 de v3.1, la sección §3.7 sobre medios de impugnación (movida al Capítulo IV §4.4) y la síntesis §3.8 de cierre. La sección §3.4 se reorganizó de cinco a cuatro subsecciones para limpiar solapamientos entre información, intérprete y audiencia. La actual §3.1 consolida en una sola vista panorámica los momentos, competencias y decisiones posibles que antes estaban dispersos. El capítulo creció aproximadamente 2,019 palabras netas y ahora es el más grande de la tesis. Si el techo de 140 hojas opera como restricción dura en la defensa, este capítulo es el primer candidato natural para compresión.</p>
+  </div>
+
+  <div class="seccion-nueva" data-section-id="cap-3-sec-3-6">
+    <h3>Análisis adicional · §3.6 Interacción con aerolíneas (NUEVA)</h3>
+    <p>La sección cubre cuatro frentes. Primero, el marco normativo que articula Anexo 9 del Convenio de Chicago, Ley de Aviación Civil y Ley de Aeropuertos con el régimen migratorio mexicano. Segundo, el art. 38 de la LM como dispositivo de carrier sanctions que traslada al transportista privado el incentivo económico de verificar la documentación migratoria antes del embarque. Tercero, la responsabilidad de retorno bajo el art. 78 del RLM y la descomposición de la custodia en tres planos: custodia logística, custodia documental del pasaporte y custodia corporal del pasajero rechazado. Cuarto, la coordinación operativa entre el INM y la aerolínea, con énfasis en la transferencia informal de información, el filtro pre-flight y la mensajería ambigua sobre el estatus jurídico del pasajero. Por qué importa: la aerolínea opera como filtro previo de hecho, ejerciendo función pública delegada sin garantías explícitas, y se convierte en vector estructural de incomunicación documental y corporal. La Tesis Aislada I.1o.A.217 A (11a.) caracteriza al transportista como auxiliar de autoridad migratoria, habilitando el control vía amparo, pero no resuelve la inexistencia de un estándar específico sobre cadena de custodia. Quedan dos marcas explícitas POR VERIFICAR que Steph debería confirmar antes del depósito: la numeración exacta de los estándares 3.33 a 3.45 del Anexo 9 según la edición vigente al cierre de 2025, y una fuente doctrinal internacional verificable sobre shifting borders y carrier sanctions más allá de Carbonell (2023).</p>
+  </div>
+
+  <div class="revisar">
+    <h3>Qué buscar al revisar</h3>
+    <ul>
+      <li>¿La §3.6 sobre aerolíneas se siente jurídicamente integrada con el resto del capítulo o suena pegada al final?</li>
+      <li>¿La reorganización de §3.4 en cuatro subsecciones (información o intérprete, comunicación externa, audiencia, registro) funciona o convendría agrupar de otra forma?</li>
+      <li>¿La numeración específica de los estándares 3.33 a 3.45 del Anexo 9 está confirmada para la edición vigente del Convenio de Chicago?</li>
+      <li>¿Existe un autor doctrinal verificable sobre shifting borders y carrier sanctions más allá de Carbonell (2023), idealmente con tradición en derecho migratorio comparado?</li>
+      <li>Si hay que comprimir para llegar a 140 hojas, ¿dónde recortarías primero: los casos hipotéticos, las subsecciones de la §3.5 sobre normativa orgánica o la §3.6 nueva?</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============ cap-4.html ============ -->
+<section class="capitulo" data-section-id="cap-4" id="cap-4">
+  <h2>Capítulo IV · Diagnóstico de brechas en zonas aeroportuarias</h2>
+
+  <div class="meta">
+    <span class="badge">5 secciones</span>
+    <span class="badge">10,319 palabras</span>
+    <span class="badge">v4: consolidado de 8 a 5 secciones</span>
+  </div>
+
+  <div class="argumento">
+    <h3>Argumento central</h3>
+    <p>El capítulo documenta empíricamente que la denegación de acceso a la justicia en zonas aeroportuarias mexicanas no es un conjunto de excesos individuales atribuibles a agentes específicos, sino una arquitectura procedimental de incumplimiento estructural. Construye un mapa por etapa del procedimiento (arribo, filtro primario, segunda revisión, alojamiento, decisión, retorno o canalización), identifica cinco barreras transversales que neutralizan sinérgicamente el catálogo formal de derechos, articula la evidencia con criterios metodológicos explícitos sobre estadística pública del INM, recomendaciones de la CNDH, informes de sociedad civil y testimonios sometidos a seis criterios de confiabilidad, y demuestra que los mecanismos de exigibilidad formalmente previstos (queja CNDH, amparo indirecto, recurso de revisión, habeas corpus administrativo) son materialmente inaccesibles en la ventana operativa de cero a veinticuatro horas. La convergencia de fuentes configura denegación estructural.</p>
+  </div>
+
+  <div class="desarrollo">
+    <h3>Cómo lo desarrolla</h3>
+    <ul>
+      <li><strong>4.1 Mapa de brechas por etapa:</strong> ordena las fallas concretas por momento del procedimiento (arribo y prefiltro, filtro primario, segunda revisión, alojamiento y espera, decisión, retorno o canalización). Cada etapa se diagnostica con cuatro variables fijas: qué se rompe, qué derecho se afecta, qué actor responsable opera y qué estándar interamericano resulta vulnerado. Cierra con tabla 4.1 que muestra la distribución acumulativa del incumplimiento.</li>
+      <li><strong>4.2 Barreras estructurales transversales:</strong> sistematiza cinco patrones que atraviesan toda la secuencia. Idioma (insuficiencia y descualificación de intérpretes), incomunicación de facto (confiscación de dispositivos, obstrucción consular), discrecionalidad y sesgos (criterios no publicados en el DOF, perfilamiento por nacionalidad), condiciones materiales (espacios no aptos, negativas de alimentos y agua) y falta de registro (ausencia de videograbación, formato preimpreso, bitácoras inexistentes).</li>
+      <li><strong>4.3 Evidencia y fuentes:</strong> 4.3.1 estadística pública UPM-SEGOB con sus límites metodológicos y tres reglas de manejo; 4.3.2 recomendaciones CNDH 86/2024, 154/2024, 199/2024 y 75/2025 junto con informes de Sin Fronteras IAP, IMUMI e INEDIM con reglas de cita; 4.3.3 testimonios sometidos a seis criterios de confiabilidad y casos hipotéticos pedagógicos (Fatou, Rajesh, Marlene) construidos por convergencia documentada.</li>
+      <li><strong>4.4 Mecanismos de exigibilidad en ventanas de horas:</strong> evalúa queja CNDH, amparo indirecto con suspensión, recurso de revisión LFPA y habeas corpus administrativo bajo el estándar de recurso efectivo del artículo 25 CADH y Pacheco Tineo. Patrón común: todos los remedios formales existen pero operan en escalas temporales incompatibles con la consumación material del retorno. Cierra con tabla 4.2 barrera/remedio.</li>
+      <li><strong>4.5 Hallazgos lagunas, fallas y obstáculos:</strong> ocho hallazgos renombrados con patrón "Ausencia de", "Inexistencia de", "Falta de", "Inaccesibilidad de" que preparan el lenguaje del Cap V (garantías endógenas, auditabilidad, ventana de comunicación, intérprete cualificado, motivación individualizada, indagación proactiva sobre non-refoulement, ventana de suspensión, publicidad en DOF).</li>
+    </ul>
+  </div>
+
+  <div class="fuentes">
+    <h3>Citas y fuentes clave</h3>
+    <ul>
+      <li>Boletín Estadístico UPM-SEGOB (URL y fecha de consulta por verificar)</li>
+      <li>CNDH Recomendaciones 86/2024, 154/2024 (POR VERIFICAR), 199/2024 (POR VERIFICAR), 75/2025</li>
+      <li>Sin Fronteras IAP (2022), IMUMI (2021), INEDIM (informes de monitoreo)</li>
+      <li>Ley de Amparo arts. 5, 11, 12, 15, 17, 125-158</li>
+      <li>Ley de Migración arts. 14, 66, 69, 70, 99, 100, 106, 107, 109, 146</li>
+      <li>LFPA art. 83 (recurso de revisión); RLM arts. 14, 59, 60, 78</li>
+      <li>Vélez Loor vs. Panamá (2010); Pacheco Tineo vs. Bolivia (2013); Suárez Rosero vs. Ecuador (1997); Cabrera García y Montiel Flores vs. México (2010); Rosendo Cantú vs. México (2010); Nadege Dorzema vs. República Dominicana (2012)</li>
+      <li>Opiniones Consultivas Corte IDH OC-6/86, OC-16/99, OC-18/03</li>
+      <li>SCJN Amparos en Revisión 275/2019, 282/2019, 481/2024; Contradicción de Tesis 293/2011; Controversia Constitucional 49/2019; Jurisprudencia 1a./J. 58/2012 y 2a./J. 29/99</li>
+      <li>CVRC art. 36; CADH arts. 1.1, 5, 7, 8, 11, 22.7, 22.8, 22.9, 25; Convención sobre el Estatuto de los Refugiados art. 33; LRPCAP art. 5</li>
+    </ul>
+  </div>
+
+  <div class="cambios">
+    <h3>Qué cambió vs v3.1</h3>
+    <p>Consolidación estructural de ocho a cinco secciones. Las brechas específicas se reorganizan de "por tipo" a "por etapa del procedimiento" (§4.1), con las barreras transversales separadas en sección propia (§4.2). Los medios de impugnación que vivían en Cap III §3.7 se reubican aquí como §4.4 mecanismos de exigibilidad en ventanas de horas, donde la evaluación gana cohesión con el diagnóstico empírico. Los hallazgos del §4.5 se renombran con el patrón "Ausencia de / Inexistencia de / Falta de / Inaccesibilidad de" que prepara mejor el lenguaje propositivo del Cap V. Se agregan dos recomendaciones CNDH (154/2024 y 199/2024) que requieren verificación de fecha exacta, autoridad destinataria y aeropuerto referido antes de defensa.</p>
+  </div>
+
+  <div class="revisar">
+    <h3>Qué buscar al revisar</h3>
+    <ul>
+      <li>La organización por etapa del procedimiento (§4.1) es más útil para tu defensa que la organización por tipo de brecha de v3.1, o pierde algún nivel de análisis que en v3.1 sí estaba?</li>
+      <li>§4.4 mecanismos de exigibilidad incorpora bien los medios de impugnación que estaban en Cap III §3.7, o quedó algún medio (acceso al SIDH, transparencia ante INAI) que conviene desarrollar?</li>
+      <li>Las recomendaciones CNDH 154/2024 y 199/2024 las puedes verificar antes de defensa (fecha exacta, autoridad destinataria, aeropuerto referido en cada una)?</li>
+      <li>El patrón "Ausencia de / Inexistencia de / Falta de / Inaccesibilidad de" del §4.5 funciona como gancho directo para los dispositivos operativos del Cap V, o sería mejor un fraseo distinto?</li>
+      <li>Algún testimonio específico que quieras incluir y que respete los seis criterios de confiabilidad (corroboración cruzada, fecha cierta, identificación con consentimiento, contraste con expediente, consistencia interna, ausencia de incentivo de fabricación)?</li>
+      <li>Los tres casos hipotéticos (Fatou wolof, Rajesh teléfono retirado, Marlene non-refoulement omitido) cubren bien las barreras o conviene un cuarto caso que ilustre condiciones materiales o motivación genérica?</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============ cap-5.html ============ -->
+<section class="capitulo" data-section-id="cap-5" id="cap-5">
+  <h2>Capítulo V · Propuesta: Protocolo mínimo de garantías (PUGREMA)</h2>
+
+  <div class="meta">
+    <span class="badge">7 secciones</span>
+    <span class="badge">10,292 palabras</span>
+    <span class="badge badge-new">v4: creció +3,969 palabras vs v3.1</span>
+    <span class="badge">Sigla PUGREMA conservada</span>
+  </div>
+
+  <div class="argumento">
+    <h3>Argumento central</h3>
+    <p>La respuesta jurídica a la denegación estructural diagnosticada en el Capítulo IV es un protocolo mínimo de garantías adoptable de manera inmediata por acuerdo administrativo interinstitucional del Instituto Nacional de Migración, sin necesidad de reforma constitucional ni legislativa previa. El instrumento llena el espacio reglamentario hoy ocupado por circulares internas no publicadas y traduce el catálogo Pacheco Tineo en reglas operativas verificables. Articula procedimiento por fases temporales acotadas, roles institucionales delimitados, formatos estandarizados, indicadores medibles y ruta de implementación trifásica. La sigla PUGREMA, Protocolo Único de Garantías en Revisión Migratoria Aeroportuaria, se conserva por reconocibilidad acumulada en capítulos previos; el nombre largo se ajusta al briefing como protocolo mínimo, donde mínimo significa piso irreductible y no techo.</p>
+  </div>
+
+  <div class="desarrollo">
+    <h3>Cómo lo desarrolla</h3>
+    <ul>
+      <li><strong>5.1 Exposición de motivos:</strong> conecta de manera directa con los ocho hallazgos sistemáticos del Capítulo IV (ausencia de información, incomunicación, interpretación precaria, omisión de notificación consular, inexistencia de defensoría especializada, motivación formularia, hiperaceleración procesal, falta de trazabilidad) y los empata uno a uno con elementos del estándar interamericano. Justifica al protocolo como acuerdo administrativo interinstitucional publicable en el DOF por el INM con SRE, COMAR e IFDP, sin trámite legislativo. Introduce la premisa metodológica de la exigibilidad endógena de garantías (Ferrajoli, 2011).</li>
+      <li><strong>5.2 Objetivo, alcance, definiciones y principios:</strong> tres finalidades específicas (cumplimiento del estándar mínimo, trazabilidad documental, criterios objetivos de validez y nulidad). Alcance territorial inicial: AICM, AIFA, Cancún, Guadalajara, Monterrey, Tijuana, Los Cabos, Puerto Vallarta. 11 definiciones operativas (persona extranjera, segunda revisión, zona de segunda revisión, inadmisión, retorno asistido, canalización, intérprete certificado, comunicación efectiva, Cartilla, bitácora, Constancia de derechos). 9 principios rectores: pro persona, debido proceso, no discriminación, igualdad, dignidad, eficiencia administrativa, transparencia, debida diligencia, no devolución.</li>
+      <li><strong>5.3 Roles y responsabilidades:</strong> 8 sub-bloques de actores con separación funcional explícita. INM con tres figuras (agente filtro primario, agente instructor, supervisor). Aerolínea con abstención absoluta de funciones migratorias. Operador aeroportuario responsable de infraestructura. Seguridad privada acotada a coadyuvancia perimetral. Consulados articulados por SRE. Estaciones migratorias receptoras con continuidad de expediente. IFDP con solución transitoria por convenios. CNDH como supervisor externo permanente bajo art. 102 B constitucional.</li>
+      <li><strong>5.4 Procedimiento por fases:</strong> 5.4.1 Fase 0-4h cubre los cinco hitos de instalación de garantías procedimentales (entrega de Cartilla, registro inicial en bitácora, activación de intérprete por Red Nacional, comunicación externa con intentos consulares documentados y llamada privada, lectura y firma de Constancia). 5.4.2 Fase 4-24h cubre audiencia con contradictorio, revisión interna del supervisor con lista de verificación de ocho elementos, canalización a COMAR por indicios de protección internacional, otras canalizaciones (trata, niñez, urgencia médica), medidas de integridad material, prórroga excepcional taxativa de 24h adicionales. 5.4.3 Decisión final con cuatro elementos acumulativos de validez: fundamentación específica, motivación individualizada en sentido fuerte, entrega de constancias en idioma del extranjero, rutas de recurso explícitas (CNDH, amparo indirecto, suspensión provisional, recurso administrativo LFPA).</li>
+      <li><strong>5.5 Formatos anexos:</strong> cross-reference a siete apéndices. A flujograma completo. B lista de verificación del supervisor. C bitácora bajo régimen de inalterabilidad. D Cartilla bilingüe español-inglés con remisión a las diez versiones (español, inglés, francés, portugués, mandarín, árabe, ruso, criollo haitiano, somalí, amhárico). E acta de canalización a COMAR. F acta circunstanciada de negativa de firma. G modelo de notificación consular conforme art. 36 Viena.</li>
+      <li><strong>5.6 Indicadores y supervisión:</strong> Tabla 5.1 con 15 KPIs construidos sobre tres criterios (relevancia respecto del estándar, verificabilidad documental, comparabilidad temporal). Indicadores cubren tiempo medio, Cartilla, intérprete, comunicación externa, notificación consular, traducciones por idioma, canalización COMAR, motivación individualizada, tipología de resoluciones, quejas CNDH, amparos, reincidencia, integridad, prórroga, fugas del protocolo. Supervisión multicapa: OIC del INM con muestra mínima 5% de expedientes, CNDH permanente, observación internacional (ACNUR, OIM, CIDH) más academia y sociedad civil, auditoría anual independiente con TdR públicos. Reporte trimestral publicado en formato abierto bajo arts. 70-71 LGTAIP.</li>
+      <li><strong>5.7 Implementación:</strong> ruta trifásica conservadora en plazos y agresiva en exigencia. Piloto AICM+AIFA meses 1-6 con publicación en DOF, mesa interinstitucional quincenal y capacitación inicial de 80 horas. Expansión meses 7-18 en dos cohortes (Cancún-Guadalajara-Monterrey, luego Tijuana-Los Cabos-Puerto Vallarta). Consolidación nacional meses 19-30 con auditoría final al mes 30 y primera revisión sustantiva al mes 36. Capacitación de 80h con módulos detallados. Costos referenciales primer año: 35 (capacitación) + 80 (intérpretes 24/7) + 45 (infraestructura) + 30 (bitácora electrónica) + 10 (supervisión) = ~200M MXN, aprox. 0.01% del ramo SEGOB 2024 (POR VERIFICAR cifra exacta presupuesto SEGOB). Gestión del cambio con sindicato y mentoría intra-INM. Adecuaciones normativas complementarias deseables pero no condicionantes en Ley de Migración (arts. 3, 11, 70), Reglamento (arts. 220-230), Ley Federal de Defensoría Pública (art. 4), Ley de Amparo y, en horizonte largo, art. 17 constitucional.</li>
+    </ul>
+  </div>
+
+  <div class="fuentes">
+    <h3>Citas y fuentes clave</h3>
+    <ul>
+      <li>Constitución Política de los Estados Unidos Mexicanos, arts. 1, 4, 14, 16, 17, 33, 102 B, 135</li>
+      <li>Ley de Migración (2011), arts. 3, 11, 37, 43, 63, 66-75, 79; Reglamento (2012), arts. 80-83, 220-230</li>
+      <li>Ley Federal de Procedimiento Administrativo (1994), arts. 3, 5</li>
+      <li>Ley sobre Refugiados, Protección Complementaria y Asilo Político (2011), arts. 6, 11-24</li>
+      <li>Ley General de Responsabilidades Administrativas (2016), arts. 49, 57</li>
+      <li>Ley General de Transparencia y Acceso a la Información Pública (2015), arts. 70, 71</li>
+      <li>Ley de Amparo (2013), art. 126</li>
+      <li>Ley Federal de Defensoría Pública (1998), art. 4</li>
+      <li>Convención de Viena sobre Relaciones Consulares (1963), art. 36</li>
+      <li>Convención sobre el Estatuto de los Refugiados (1951), art. 33; Protocolo 1967; Declaración de Cartagena (1984)</li>
+      <li>Convención Americana sobre Derechos Humanos (1969)</li>
+      <li>Corte IDH, OC-16/99 (asistencia consular como garantía del debido proceso); OC-21/14 (niñez migrante); OC-25/18 (asilo y no devolución)</li>
+      <li>Corte IDH, Vélez Loor vs. Panamá (2010), párrs. 108, 132, 198-209</li>
+      <li>Corte IDH, Familia Pacheco Tineo vs. Bolivia (2013), párrs. 132-136</li>
+      <li>Corte IDH, Nadege Dorzema vs. República Dominicana (2012)</li>
+      <li>SCJN, Tesis P./J. 20/2014 (derechos humanos en Constitución y tratados); Tesis 1a./J. 15/2022 (motivación de actos administrativos)</li>
+      <li>CNDH, Recomendación 86/2024 y Recomendación 75/2025</li>
+      <li>UPM (2024), Boletín Estadístico Anual; ACNUR (2019), Manual de Procedimientos rev. 2019</li>
+      <li>Ferrajoli (2011), Principia iuris; Fix-Zamudio (2022); González Le Saux (2021), Corpus iuris interamericano; Fernández Ruiz (2019); García Villegas (2014), eficacia simbólica del derecho; Gammeltoft-Hansen (2011), Access to Asylum</li>
+      <li>Presupuesto de Egresos de la Federación 2024, ramo SEGOB (POR VERIFICAR cifra exacta)</li>
+    </ul>
+  </div>
+
+  <div class="cambios">
+    <h3>Qué cambió vs v3.1</h3>
+    <p>Capítulo renombrado de PUGREMA largo a protocolo mínimo de garantías en cumplimiento del briefing, pero la sigla PUGREMA se conservó por reconocibilidad acumulada en capítulos previos. Reorganización estructural de 8 a 7 secciones. La 5.1 ahora abre conectando explícitamente con los ocho hallazgos del Capítulo IV uno a uno (en lugar de la justificación abstracta de la versión anterior) e introduce la premisa de exigibilidad endógena. La 5.2 amplió definiciones operativas de 5 a 11 y principios de 6 a 9 (agregando dignidad, eficiencia administrativa, debida diligencia). La 5.3 pasó de tabla esquemática a prosa con 8 actores delimitados con separación funcional explícita. La 5.4 se expandió con tres subsecciones nítidas por fase, plazos específicos por hito, responsables nominados y constancias requeridas. La 5.5 es sección NUEVA dedicada exclusivamente a formatos anexos con siete apéndices. La 5.6 amplió la tabla a 15 KPIs con metas año 1 y año 3 e introdujo supervisión multicapa (OIC + CNDH + observación internacional + sociedad civil + auditoría anual). La 5.7 unifica implementación trifásica con gestión del cambio y adecuaciones normativas (antes ruta legislativa autónoma). Eliminada la 5.8 de consideración final. Capítulo creció +3,969 palabras y es ahora considerablemente más operacionable, auditable y exigible.</p>
+  </div>
+
+  <div class="revisar">
+    <h3>Qué buscar al revisar</h3>
+    <ul>
+      <li>¿La coexistencia entre la sigla PUGREMA y el nombre largo "protocolo mínimo" conviene mantenerse o conviene sacrificar una de las dos para evitar fricción con el sínodo?</li>
+      <li>¿Las fases 0-4h y 4-24h con sus plazos por hito (intérprete dentro de 60 min, comunicación externa dentro de 2h, Constancia dentro de 3h) son realistas operativamente en AICM y AIFA?</li>
+      <li>¿Los 9 principios rectores son los correctos o falta alguno (interés superior de la niñez como principio autónomo, perspectiva de género)?</li>
+      <li>¿La cifra de 200M MXN equivalente a 0.01% del ramo SEGOB la puedes verificar contra el PEF 2024 publicado en DOF? La cita está marcada POR VERIFICAR en el cuerpo.</li>
+      <li>¿La supervisión multicapa (OIC 5% + CNDH permanente + ACNUR/OIM/CIDH + sociedad civil + auditoría anual independiente) es defendible ante el sínodo o suena demasiado ambiciosa para un acuerdo administrativo?</li>
+      <li>¿La ruta de implementación trifásica de 30 meses te parece convincente o el sínodo va a pedir plazo más corto?</li>
+      <li>¿Los 15 KPIs son medibles con datos públicos disponibles hoy, o varios requieren infraestructura que el INM aún no tiene?</li>
+      <li>¿La sección 5.7.8 sobre adecuaciones normativas complementarias debería quedarse como ruta deseable o conviene moverla al Capítulo VI de conclusiones?</li>
+      <li>¿La separación funcional entre agente instructor y supervisor es operativamente viable en estaciones pequeñas (Los Cabos, Puerto Vallarta) con plantillas reducidas?</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============ conclusiones.html ============ -->
+<section class="conclusiones-resumen" data-section-id="conclusiones" id="conclusiones">
+  <h2>Conclusiones</h2>
+
+  <div class="meta">
+    <span class="badge">5 secciones (A-E)</span>
+    <span class="badge">2,512 palabras</span>
+    <span class="badge badge-new">v4: tono conversacional según briefing</span>
+  </div>
+
+  <div class="estructura">
+    <h3>Estructura conversacional según briefing</h3>
+    <ul>
+      <li><strong>A. Conversacional:</strong> apertura reflexiva en primera persona; el problema no es de norma ni de aplicación aislada sino falla estructural; PUGREMA como respuesta dentro del marco vigente, sin reforma legal previa.</li>
+      <li><strong>B. Respuesta a las 5 preguntas de investigación:</strong> una respuesta por pregunta, conectada a su capítulo (naturaleza del espacio y sujetos; contenido normativo del derecho; régimen procedimental y garantías exigibles; brechas empíricas; instrumento de corrección).</li>
+      <li><strong>C. Confirmación de la hipótesis:</strong> 2 proposiciones verificadas. Primera: el reconocimiento formal no equivale a garantía efectiva. Segunda: la causa es la convergencia de lagunas reglamentarias, praxis informal del INM, inaccesibilidad material del amparo y ausencia de controles externos.</li>
+      <li><strong>D. Aportes y límites:</strong> 3 aportes (dogmático: reconstrucción del bloque normativo; diagnóstico: mapa convergente de brechas; propositivo: diseño detallado del PUGREMA con apéndices A-D). 3 límites (no empírica, corte abril 2026, PUGREMA no evaluado cuasi-experimentalmente por no estar adoptado).</li>
+      <li><strong>E. Recomendaciones y agenda:</strong> 3 recomendaciones (adopción PUGREMA por acuerdo administrativo interinstitucional INM-SRE-COMAR-IFDP-CNDH; implementación trifásica con piloto AICM y AIFA; reformas legislativas complementarias al art. 3 y 70 LM y Reglamento). 3 líneas futuras (estudios empíricos de campo; análisis cuantitativo sistemático de resoluciones de inadmisión; evaluación cuasi-experimental post-adopción).</li>
+    </ul>
+  </div>
+
+  <div class="cierre">
+    <h3>Consideración final</h3>
+    <blockquote>"Mientras esa decisión política no se adopte, cada día añade casos individuales a las violaciones estructurales documentadas. La inacción ha dejado de tener coartada jurídica."</blockquote>
+  </div>
+
+  <div class="revisar">
+    <h3>Qué buscar al revisar las conclusiones</h3>
+    <ul>
+      <li>¿El tono conversacional con primera persona ocasional ("cuando empecé esta investigación me preguntaba") te incomoda para una tesis jurídica formal, o cumple la función de cerrar con voz propia tras 5 capítulos densos?</li>
+      <li>¿La respuesta a cada una de las 5 preguntas en la sección B es lo suficientemente sustantiva, o se siente como restatement compacto del capítulo correspondiente sin agregar síntesis?</li>
+      <li>¿La sección D es honesta sobre los límites, o conviene moderar el reconocimiento de "no empírica" para no debilitar la tesis frente al sínodo? En particular, ¿el tercer límite (PUGREMA no evaluado cuasi-experimentalmente) abre flanco innecesario?</li>
+      <li>¿3 recomendaciones más 3 líneas de agenda son demasiadas para conclusiones, o se siente proporcional al peso de la propuesta?</li>
+      <li>¿El cierre con "la inacción ha dejado de tener coartada jurídica" funciona como ending defendible, o suena demasiado retórico y conviene aterrizarlo con una formulación más técnica?</li>
+      <li>¿La afirmación de que la omisión configuraría "una decisión política deliberada incompatible con las obligaciones constitucionales y convencionales del Estado mexicano" (Recomendación 1) es defendible o conviene atemperarla?</li>
+    </ul>
+  </div>
+</section>
+
+    </div>
+  </main>
+
+  <aside class="sidebar" id="sidebar">
+    <h2>Comentarios y audio <span id="comments-count" style="font-weight:400;color:#888;font-size:12px;float:right;"></span></h2>
+    <div id="comments-list"></div>
+    <p id="empty-state">Sin comentarios todav&iacute;a...</p>
+  </aside>
+
+</div>
+
+<script>
+
+(function(){
+  'use strict';
+
+  var STATE_KEY = 'revisor-tesis-v4-state';
+
+  var state = {
+    comments: [],
+    audios: [],
+    inkStrokes: [],
+    pencilOn: false,
+    activeColor: 'h-yellow'
+  };
+
+  var els = {
+    toolbar: document.getElementById('toolbar'),
+    status: document.getElementById('status'),
+    btnComment: document.getElementById('btn-comment'),
+    btnPencil: document.getElementById('btn-pencil'),
+    btnAudio: document.getElementById('btn-audio'),
+    btnUndo: document.getElementById('btn-undo'),
+    btnExport: document.getElementById('btn-export'),
+    btnImport: document.getElementById('btn-import'),
+    btnClear: document.getElementById('btn-clear'),
+    fileImport: document.getElementById('file-import'),
+    swatchYellow: document.getElementById('hl-yellow'),
+    swatchGreen: document.getElementById('hl-green'),
+    swatchPink: document.getElementById('hl-pink'),
+    editable: document.getElementById('editable-content'),
+    commentsList: document.getElementById('comments-list'),
+    emptyState: document.getElementById('empty-state'),
+    canvas: document.getElementById('ink-canvas'),
+    docRoot: document.getElementById('doc-root'),
+    sidebar: document.getElementById('sidebar')
+  };
+
+  var ctx = els.canvas.getContext('2d');
+  var saveTimer = null;
+  var undoSnapshot = null;
+  var mediaRecorder = null;
+  var audioChunks = [];
+  var audioStream = null;
+  var currentAudioSection = null;
+  var currentAudioAnchor = null;
+  var observer = null;
+  var drawing = false;
+  var currentStroke = null;
+
+  function setStatus(msg, isError){
+    els.status.textContent = msg || 'Listo';
+    els.status.style.color = isError ? '#fca5a5' : '#cfcfcf';
+    if (msg && msg !== 'Listo'){
+      clearTimeout(setStatus._t);
+      setStatus._t = setTimeout(function(){ setStatus('Listo'); }, 3500);
+    }
+  }
+
+  function escapeHtml(s){
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function nowIso(){
+    return new Date().toISOString();
+  }
+
+  function genId(prefix){
+    return prefix + '-' + Date.now().toString(36) + '-' + Math.floor(Math.random()*1e4).toString(36);
+  }
+
+  function todayStamp(){
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth()+1).padStart(2,'0');
+    var day = String(d.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + day;
+  }
+
+  // ============== PERSISTENCIA ==============
+  function save(){
+    try {
+      var snapshot = {
+        version: 1,
+        savedAt: nowIso(),
+        comments: state.comments,
+        audios: state.audios,
+        inkStrokes: state.inkStrokes,
+        docHTML: els.editable.innerHTML
+      };
+      localStorage.setItem(STATE_KEY, JSON.stringify(snapshot));
+    } catch(e){
+      setStatus('Error guardando: ' + e.message, true);
+    }
+  }
+
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 800);
+  }
+
+  function load(){
+    try {
+      var raw = localStorage.getItem(STATE_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (data.docHTML){
+        els.editable.innerHTML = data.docHTML;
+      }
+      state.comments = data.comments || [];
+      state.audios = data.audios || [];
+      state.inkStrokes = data.inkStrokes || [];
+      renderComments();
+      renderAudios();
+      setStatus('Estado restaurado');
+    } catch(e){
+      setStatus('Error cargando: ' + e.message, true);
+    }
+  }
+
+  // ============== HIGHLIGHT ==============
+  function applyHighlight(colorClass){
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed){
+      setStatus('Selecciona texto primero', true);
+      return;
+    }
+    var range = sel.getRangeAt(0);
+    if (!isInsideEditable(range.commonAncestorContainer)){
+      setStatus('Selecciona dentro del documento', true);
+      return;
+    }
+    var mark = document.createElement('mark');
+    mark.className = colorClass;
+    try {
+      range.surroundContents(mark);
+      sel.removeAllRanges();
+      scheduleSave();
+      setStatus('Resaltado');
+    } catch(e){
+      // selection cruza fronteras de elementos
+      var contents = range.extractContents();
+      mark.appendChild(contents);
+      range.insertNode(mark);
+      sel.removeAllRanges();
+      scheduleSave();
+      setStatus('Resaltado');
+    }
+  }
+
+  function isInsideEditable(node){
+    while (node){
+      if (node === els.editable) return true;
+      node = node.parentNode;
+    }
+    return false;
+  }
+
+  // ============== COMENTARIOS ==============
+  function addComment(){
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed){
+      setStatus('Selecciona texto primero', true);
+      return;
+    }
+    var range = sel.getRangeAt(0);
+    if (!isInsideEditable(range.commonAncestorContainer)){
+      setStatus('Selecciona dentro del documento', true);
+      return;
+    }
+    var text = prompt('Comentario:');
+    if (text == null || !text.trim()) return;
+
+    var cid = 'c-' + Date.now().toString(36);
+    var span = document.createElement('span');
+    span.className = 'anchor-marker';
+    span.setAttribute('data-comment-id', cid);
+    try {
+      range.surroundContents(span);
+    } catch(e){
+      var contents = range.extractContents();
+      span.appendChild(contents);
+      range.insertNode(span);
+    }
+    var quotedText = span.textContent.slice(0, 80);
+
+    state.comments.push({
+      id: cid,
+      text: text.trim(),
+      quoted: quotedText,
+      createdAt: nowIso()
+    });
+    sel.removeAllRanges();
+    renderComments();
+    save();
+    setStatus('Comentario agregado');
+  }
+
+  function updateCommentsCount(){
+    var total = state.comments.length + state.audios.length;
+    var visible = document.querySelectorAll('#comments-list .comment-card:not(.collapsed)').length;
+    var countEl = document.getElementById('comments-count');
+    if (countEl){
+      countEl.textContent = total > 0 ? (visible + ' en pantalla / ' + total + ' total') : '';
+    }
+    var emptyEl = els.emptyState;
+    if (!emptyEl) return;
+    if (total === 0){
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'Sin comentarios todavía. Selecciona texto y presiona Comentario.';
+    } else if (visible === 0){
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'Ninguna anotación en pantalla. Scrollea para verlas.';
+    } else {
+      emptyEl.style.display = 'none';
+    }
+  }
+
+  function renderComments(){
+    els.commentsList.innerHTML = '';
+    // texto
+    state.comments.forEach(function(c){
+      var card = document.createElement('div');
+      card.className = 'comment-card';
+      card.setAttribute('data-card-id', c.id);
+      card.innerHTML = ''
+        + '<div class="card-head">'
+        +   '<button class="anchor-link" data-anchor="' + escapeHtml(c.id) + '">Ir al texto</button>'
+        +   '<button class="delete" data-del="' + escapeHtml(c.id) + '" title="Eliminar">x</button>'
+        + '</div>'
+        + '<div class="body">' + escapeHtml(c.text) + '</div>'
+        + (c.quoted ? '<div class="ts">"' + escapeHtml(c.quoted) + '"</div>' : '')
+        + '<div class="ts">' + escapeHtml(c.createdAt.slice(0,16).replace('T',' ')) + '</div>';
+      els.commentsList.appendChild(card);
+    });
+    // audio
+    state.audios.forEach(function(a){
+      var card = document.createElement('div');
+      card.className = 'comment-card audio-card';
+      card.setAttribute('data-card-id', a.id);
+      var anchorLabel;
+      if (a.anchor){
+        anchorLabel = '<button class="anchor-link" data-anchor-audio="' + escapeHtml(a.id) + '">"' + escapeHtml(a.anchor) + '"</button>';
+      } else {
+        anchorLabel = '<span class="anchor-link">Audio &middot; ' + escapeHtml(a.sectionId || a.section || 'sin secci&oacute;n') + '</span>';
+      }
+      card.innerHTML = ''
+        + '<div class="card-head">'
+        +   anchorLabel
+        +   '<button class="delete" data-del-audio="' + escapeHtml(a.id) + '" title="Eliminar">x</button>'
+        + '</div>'
+        + '<audio controls src="' + a.dataUrl + '"></audio>'
+        + '<div class="ts">' + escapeHtml(a.createdAt.slice(0,16).replace('T',' ')) + '</div>';
+      els.commentsList.appendChild(card);
+    });
+    refreshObserver();
+    updateCommentsCount();
+  }
+
+  function renderAudios(){
+    // ya cubierto por renderComments
+    refreshObserver();
+  }
+
+  els.commentsList.addEventListener('click', function(ev){
+    var t = ev.target;
+    // click en una card colapsada (delegación)
+    var collapsedCard = t.closest && t.closest('.comment-card.collapsed');
+    if (collapsedCard && !t.matches('[data-del]') && !t.matches('[data-del-audio]')){
+      var cardId = collapsedCard.getAttribute('data-card-id');
+      var targetSpan = els.editable.querySelector('[data-comment-id="' + cardId + '"], [data-audio-id="' + cardId + '"]');
+      if (targetSpan){
+        targetSpan.scrollIntoView({behavior:'smooth', block:'center'});
+        targetSpan.setAttribute('data-active','1');
+        setTimeout(function(){ targetSpan.removeAttribute('data-active'); }, 1500);
+      }
+      collapsedCard.classList.remove('collapsed');
+      setTimeout(function(){
+        // observer reaplica si sigue fuera de viewport
+        if (observer && targetSpan){ observer.unobserve(targetSpan); observer.observe(targetSpan); }
+      }, 3000);
+      return;
+    }
+    if (t.matches('[data-anchor]')){
+      var aid = t.getAttribute('data-anchor');
+      var span = els.editable.querySelector('[data-comment-id="' + aid + '"]');
+      if (span){
+        span.scrollIntoView({behavior:'smooth', block:'center'});
+        span.setAttribute('data-active','1');
+        setTimeout(function(){ span.removeAttribute('data-active'); }, 1500);
+      }
+    } else if (t.matches('[data-anchor-audio]')){
+      var aaid = t.getAttribute('data-anchor-audio');
+      var aspan = els.editable.querySelector('[data-audio-id="' + aaid + '"]');
+      if (aspan){
+        aspan.scrollIntoView({behavior:'smooth', block:'center'});
+        aspan.setAttribute('data-active','1');
+        setTimeout(function(){ aspan.removeAttribute('data-active'); }, 1500);
+      }
+    } else if (t.matches('[data-del]')){
+      var did = t.getAttribute('data-del');
+      removeComment(did);
+    } else if (t.matches('[data-del-audio]')){
+      var aid2 = t.getAttribute('data-del-audio');
+      removeAudio(aid2);
+    }
+  });
+
+  function removeComment(id){
+    state.comments = state.comments.filter(function(c){ return c.id !== id; });
+    // unwrap span
+    var span = els.editable.querySelector('[data-comment-id="' + id + '"]');
+    if (span){
+      var parent = span.parentNode;
+      while (span.firstChild) parent.insertBefore(span.firstChild, span);
+      parent.removeChild(span);
+    }
+    renderComments();
+    save();
+  }
+
+  function removeAudio(id){
+    state.audios = state.audios.filter(function(a){ return a.id !== id; });
+    // unwrap span audio-anchor si existe
+    var span = els.editable.querySelector('[data-audio-id="' + id + '"]');
+    if (span){
+      var parent = span.parentNode;
+      while (span.firstChild) parent.insertBefore(span.firstChild, span);
+      parent.removeChild(span);
+    }
+    renderComments();
+    save();
+  }
+
+  // ============== PENCIL (Pointer Events) ==============
+  function resizeCanvas(){
+    var rect = els.docRoot.getBoundingClientRect();
+    var height = els.docRoot.scrollHeight;
+    var dpr = window.devicePixelRatio || 1;
+    els.canvas.width = Math.floor(rect.width * dpr);
+    els.canvas.height = Math.floor(height * dpr);
+    els.canvas.style.width = rect.width + 'px';
+    els.canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    redrawInk();
+  }
+
+  function redrawInk(){
+    ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#1a1a1a';
+    state.inkStrokes.forEach(function(stroke){
+      if (!stroke.points || stroke.points.length < 2) return;
+      ctx.beginPath();
+      for (var i = 0; i < stroke.points.length; i++){
+        var p = stroke.points[i];
+        var lw = (stroke.width || 2) * (p.p * 1.5 + 0.5);
+        ctx.lineWidth = lw;
+        if (i === 0){
+          ctx.moveTo(p.x, p.y);
+        } else {
+          ctx.lineTo(p.x, p.y);
+        }
+      }
+      ctx.stroke();
+    });
+  }
+
+  function canvasPoint(ev){
+    var rect = els.canvas.getBoundingClientRect();
+    return {
+      x: ev.clientX - rect.left,
+      y: ev.clientY - rect.top,
+      p: typeof ev.pressure === 'number' && ev.pressure > 0 ? ev.pressure : 0.5
+    };
+  }
+
+  els.canvas.addEventListener('pointerdown', function(ev){
+    if (!state.pencilOn) return;
+    ev.preventDefault();
+    els.canvas.setPointerCapture(ev.pointerId);
+    drawing = true;
+    currentStroke = { width: 2, points: [canvasPoint(ev)] };
+  });
+  els.canvas.addEventListener('pointermove', function(ev){
+    if (!drawing || !state.pencilOn) return;
+    var pt = canvasPoint(ev);
+    var last = currentStroke.points[currentStroke.points.length - 1];
+    currentStroke.points.push(pt);
+    var lw = currentStroke.width * (pt.p * 1.5 + 0.5);
+    ctx.lineWidth = lw;
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(pt.x, pt.y);
+    ctx.stroke();
+  });
+  function endStroke(ev){
+    if (!drawing) return;
+    drawing = false;
+    if (currentStroke && currentStroke.points.length > 1){
+      state.inkStrokes.push(currentStroke);
+      scheduleSave();
+    }
+    currentStroke = null;
+    try { els.canvas.releasePointerCapture(ev.pointerId); } catch(e){}
+  }
+  els.canvas.addEventListener('pointerup', endStroke);
+  els.canvas.addEventListener('pointercancel', endStroke);
+  els.canvas.addEventListener('pointerleave', endStroke);
+
+  function togglePencil(){
+    state.pencilOn = !state.pencilOn;
+    document.body.classList.toggle('pencil-mode', state.pencilOn);
+    els.btnPencil.classList.toggle('active', state.pencilOn);
+    if (state.pencilOn){
+      resizeCanvas();
+      setStatus('Lápiz activo');
+    } else {
+      setStatus('Lápiz inactivo');
+    }
+  }
+
+  // ============== AUDIO ==============
+  function findCurrentSection(){
+    // primero, cursor
+    var sel = window.getSelection();
+    if (sel && sel.rangeCount){
+      var node = sel.getRangeAt(0).startContainer;
+      while (node && node !== els.editable){
+        if (node.nodeType === 1 && node.getAttribute && node.getAttribute('data-section-id')){
+          return node.getAttribute('data-section-id');
+        }
+        node = node.parentNode;
+      }
+    }
+    // si no, sección más cercana al scrollTop
+    var sections = els.editable.querySelectorAll('[data-section-id]');
+    var bestId = null;
+    var bestDelta = Infinity;
+    var scrollTop = window.scrollY + 80;
+    sections.forEach(function(s){
+      var top = s.getBoundingClientRect().top + window.scrollY;
+      var delta = Math.abs(top - scrollTop);
+      if (top <= scrollTop + 20 && delta < bestDelta){
+        bestDelta = delta;
+        bestId = s.getAttribute('data-section-id');
+      }
+    });
+    return bestId || (sections.length ? sections[0].getAttribute('data-section-id') : 'doc');
+  }
+
+  function toggleAudio(){
+    if (mediaRecorder && mediaRecorder.state === 'recording'){
+      mediaRecorder.stop();
+      els.btnAudio.classList.remove('active');
+      setStatus('Audio detenido, procesando');
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      setStatus('Audio no soportado en este navegador', true);
+      return;
+    }
+    // Anclaje: selección > sección
+    var sel = window.getSelection();
+    currentAudioAnchor = null;
+    if (sel && !sel.isCollapsed && isInsideEditable(sel.anchorNode)){
+      var range = sel.getRangeAt(0);
+      var snippet = sel.toString().slice(0, 80);
+      var audioId = 'a-' + Date.now().toString(36) + '-' + Math.floor(Math.random()*1e4).toString(36);
+      var span = document.createElement('span');
+      span.className = 'anchor-marker audio-anchor';
+      span.setAttribute('data-audio-id', audioId);
+      try {
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+        currentAudioAnchor = { id: audioId, snippet: snippet, sectionId: findCurrentSection() || 'unknown' };
+        sel.removeAllRanges();
+      } catch(e){
+        setStatus('No se pudo anclar a la selección, anclando a sección');
+        currentAudioAnchor = null;
+      }
+    }
+    if (!currentAudioAnchor){
+      var sectionId = findCurrentSection();
+      if (!sectionId){
+        setStatus('Selecciona texto o coloca el cursor en una sección', true);
+        return;
+      }
+      var ok = confirm('No hay texto seleccionado. Anclar audio a la sección "' + sectionId + '"?');
+      if (!ok) return;
+      currentAudioAnchor = {
+        id: 'a-' + Date.now().toString(36) + '-' + Math.floor(Math.random()*1e4).toString(36),
+        snippet: null,
+        sectionId: sectionId
+      };
+    }
+    currentAudioSection = currentAudioAnchor.sectionId;
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      audioStream = stream;
+      audioChunks = [];
+      var mime = 'audio/webm';
+      try { mediaRecorder = new MediaRecorder(stream, {mimeType: mime}); }
+      catch(e){ mediaRecorder = new MediaRecorder(stream); }
+      mediaRecorder.ondataavailable = function(ev){
+        if (ev.data && ev.data.size > 0) audioChunks.push(ev.data);
+      };
+      mediaRecorder.onstop = function(){
+        var blob = new Blob(audioChunks, {type: 'audio/webm'});
+        var reader = new FileReader();
+        reader.onloadend = function(){
+          state.audios.push({
+            id: currentAudioAnchor.id,
+            anchor: currentAudioAnchor.snippet,
+            sectionId: currentAudioAnchor.sectionId,
+            dataUrl: reader.result,
+            createdAt: nowIso()
+          });
+          renderComments();
+          save();
+          setStatus('Audio guardado');
+        };
+        reader.readAsDataURL(blob);
+        if (audioStream){
+          audioStream.getTracks().forEach(function(t){ t.stop(); });
+          audioStream = null;
+        }
+      };
+      mediaRecorder.start();
+      els.btnAudio.classList.add('active');
+      setStatus('Grabando audio · ' + currentAudioAnchor.sectionId);
+    }).catch(function(e){
+      setStatus('Permiso micrófono denegado', true);
+    });
+  }
+
+  // ============== UNDO ==============
+  els.editable.addEventListener('focus', function(){
+    undoSnapshot = els.editable.innerHTML;
+  });
+  function doUndo(){
+    if (undoSnapshot != null){
+      els.editable.innerHTML = undoSnapshot;
+      scheduleSave();
+      setStatus('Deshecho (snapshot)');
+    } else {
+      try {
+        document.execCommand('undo');
+        setStatus('Deshecho');
+      } catch(e){
+        setStatus('Nada que deshacer', true);
+      }
+    }
+  }
+
+  // ============== EXPORT / IMPORT ==============
+  function doExport(){
+    var payload = {
+      version: 1,
+      exported: nowIso(),
+      comments: state.comments,
+      audios: state.audios,
+      inkStrokes: state.inkStrokes,
+      docHTML: els.editable.innerHTML
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'anotaciones-tesis-v4-' + todayStamp() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    setStatus('Exportado');
+  }
+
+  function doImport(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var data = JSON.parse(reader.result);
+        if (data.docHTML) els.editable.innerHTML = data.docHTML;
+        state.comments = data.comments || [];
+        state.audios = data.audios || [];
+        state.inkStrokes = data.inkStrokes || [];
+        renderComments();
+        resizeCanvas();
+        save();
+        setStatus('Importado');
+      } catch(e){
+        setStatus('Archivo inválido', true);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ============== CLEAR ==============
+  function doClear(){
+    if (!confirm('Borrar todas las anotaciones y volver al estado inicial? Esto NO se puede deshacer.')) return;
+    localStorage.removeItem(STATE_KEY);
+    location.reload();
+  }
+
+  // ============== EVENT BINDINGS ==============
+  els.btnComment.addEventListener('click', addComment);
+  els.btnPencil.addEventListener('click', togglePencil);
+  els.btnAudio.addEventListener('click', toggleAudio);
+  els.btnUndo.addEventListener('click', doUndo);
+  els.btnExport.addEventListener('click', doExport);
+  els.btnImport.addEventListener('click', function(){ els.fileImport.click(); });
+  els.btnClear.addEventListener('click', doClear);
+  els.fileImport.addEventListener('change', function(ev){
+    if (ev.target.files && ev.target.files[0]) doImport(ev.target.files[0]);
+    ev.target.value = '';
+  });
+  els.swatchYellow.addEventListener('click', function(){ applyHighlight('h-yellow'); });
+  els.swatchGreen.addEventListener('click', function(){ applyHighlight('h-green'); });
+  els.swatchPink.addEventListener('click', function(){ applyHighlight('h-pink'); });
+
+  // ============== TRACK CHANGES ==============
+  var trackChangesOn = true;
+  var btnTrackChanges = document.getElementById('btn-track-changes');
+  btnTrackChanges.addEventListener('click', function(){
+    trackChangesOn = !trackChangesOn;
+    btnTrackChanges.classList.toggle('active', trackChangesOn);
+    setStatus(trackChangesOn ? 'Modo cambios activo' : 'Modo cambios desactivado');
+  });
+
+  els.editable.addEventListener('beforeinput', function(e){
+    if (!trackChangesOn) return;
+    var t = e.inputType;
+    // INSERTAR texto
+    if (t === 'insertText' || t === 'insertCompositionText' || t === 'insertFromPaste') {
+      if (!e.data) return;
+      e.preventDefault();
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      var range = sel.getRangeAt(0);
+      range.deleteContents();
+      var ins;
+      var prev = (range.startContainer.nodeType === 3 && range.startOffset === range.startContainer.length)
+        ? range.startContainer.parentNode
+        : null;
+      if (prev && prev.classList && prev.classList.contains('user-ins')) {
+        prev.appendChild(document.createTextNode(e.data));
+        var r = document.createRange();
+        r.selectNodeContents(prev);
+        r.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(r);
+      } else {
+        ins = document.createElement('ins');
+        ins.className = 'user-ins';
+        ins.appendChild(document.createTextNode(e.data));
+        range.insertNode(ins);
+        var r2 = document.createRange();
+        r2.setStartAfter(ins);
+        r2.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(r2);
+      }
+      scheduleSave();
+      return;
+    }
+    // BORRAR
+    if (t === 'deleteContentBackward' || t === 'deleteContentForward' || t === 'deleteByCut') {
+      var sel2 = window.getSelection();
+      if (!sel2 || sel2.rangeCount === 0) return;
+      var range2 = sel2.getRangeAt(0);
+      if (!range2.collapsed) {
+        e.preventDefault();
+        var frag = range2.extractContents();
+        var del = document.createElement('del');
+        del.className = 'user-del';
+        del.appendChild(frag);
+        if (del.textContent.length > 0 && del.querySelectorAll('.user-del').length === 0) {
+          range2.insertNode(del);
+        }
+        scheduleSave();
+        return;
+      }
+      e.preventDefault();
+      if (t === 'deleteContentBackward') {
+        var node = range2.startContainer;
+        if (node.nodeType === 3 && range2.startOffset > 0) {
+          var parent = node.parentNode;
+          if (parent.classList && parent.classList.contains('user-ins')) {
+            node.data = node.data.slice(0, range2.startOffset - 1) + node.data.slice(range2.startOffset);
+            var r3 = document.createRange();
+            r3.setStart(node, range2.startOffset - 1);
+            r3.collapse(true);
+            sel2.removeAllRanges();
+            sel2.addRange(r3);
+            if (parent.textContent.length === 0) parent.remove();
+            scheduleSave();
+            return;
+          }
+          if (parent.classList && parent.classList.contains('user-del')) {
+            var r4 = document.createRange();
+            r4.setStartBefore(parent);
+            r4.collapse(true);
+            sel2.removeAllRanges();
+            sel2.addRange(r4);
+            scheduleSave();
+            return;
+          }
+          var charText = node.data[range2.startOffset - 1];
+          var before = node.data.slice(0, range2.startOffset - 1);
+          var after  = node.data.slice(range2.startOffset);
+          node.data = before;
+          var del2 = document.createElement('del');
+          del2.className = 'user-del';
+          del2.textContent = charText;
+          if (after.length > 0) {
+            var afterNode = document.createTextNode(after);
+            node.parentNode.insertBefore(afterNode, node.nextSibling);
+            node.parentNode.insertBefore(del2, afterNode);
+            var r5 = document.createRange();
+            r5.setStartBefore(afterNode);
+            r5.collapse(true);
+            sel2.removeAllRanges();
+            sel2.addRange(r5);
+          } else {
+            node.parentNode.insertBefore(del2, node.nextSibling);
+            var r6 = document.createRange();
+            r6.setStartAfter(del2);
+            r6.collapse(true);
+            sel2.removeAllRanges();
+            sel2.addRange(r6);
+          }
+          scheduleSave();
+          return;
+        }
+      }
+      if (t === 'deleteContentForward') {
+        var node2 = range2.startContainer;
+        if (node2.nodeType === 3 && range2.startOffset < node2.data.length) {
+          var parent2 = node2.parentNode;
+          if (parent2.classList && parent2.classList.contains('user-ins')) {
+            node2.data = node2.data.slice(0, range2.startOffset) + node2.data.slice(range2.startOffset + 1);
+            scheduleSave();
+            return;
+          }
+          if (parent2.classList && parent2.classList.contains('user-del')) {
+            var r7 = document.createRange();
+            r7.setStartAfter(parent2);
+            r7.collapse(true);
+            sel2.removeAllRanges();
+            sel2.addRange(r7);
+            scheduleSave();
+            return;
+          }
+          var charText2 = node2.data[range2.startOffset];
+          var before2 = node2.data.slice(0, range2.startOffset);
+          var after2  = node2.data.slice(range2.startOffset + 1);
+          node2.data = before2;
+          var del3 = document.createElement('del');
+          del3.className = 'user-del';
+          del3.textContent = charText2;
+          if (after2.length > 0) {
+            var afterNode2 = document.createTextNode(after2);
+            node2.parentNode.insertBefore(afterNode2, node2.nextSibling);
+            node2.parentNode.insertBefore(del3, afterNode2);
+          } else {
+            node2.parentNode.insertBefore(del3, node2.nextSibling);
+          }
+          scheduleSave();
+          return;
+        }
+      }
+    }
+  });
+
+  els.editable.addEventListener('input', function(){
+    scheduleSave();
+  });
+
+  window.addEventListener('resize', function(){
+    resizeCanvas();
+  });
+
+  // re-resize on content change in case of layout shifts
+  var resizeObserver;
+  if (window.ResizeObserver){
+    resizeObserver = new ResizeObserver(function(){ resizeCanvas(); });
+    resizeObserver.observe(els.docRoot);
+  }
+
+  // ============== INTERSECTION OBSERVER (sidebar minimization) ==============
+  function refreshObserver(){
+    if (!('IntersectionObserver' in window)) return;
+    if (!observer){
+      observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          var id = entry.target.getAttribute('data-comment-id') || entry.target.getAttribute('data-audio-id');
+          if (!id) return;
+          var card = els.commentsList.querySelector('[data-card-id="' + id + '"]');
+          if (!card) return;
+          if (entry.isIntersecting){
+            card.classList.remove('collapsed');
+          } else {
+            card.classList.add('collapsed');
+          }
+        });
+        updateCommentsCount();
+      }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
+    } else {
+      observer.disconnect();
+    }
+    var anchors = els.editable.querySelectorAll('[data-comment-id], [data-audio-id]');
+    anchors.forEach(function(a){ observer.observe(a); });
+  }
+
+  // ============== INIT ==============
+  load();
+  resizeCanvas();
+  refreshObserver();
+  setStatus('Listo');
+})();
+
+</script>
+</body>
+</html>
