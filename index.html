@@ -516,6 +516,7 @@ aside.sidebar h2{
   <button id="btn-export" title="Exportar anotaciones a JSON">&#11015; Exportar</button>
   <button id="btn-import" title="Importar anotaciones desde JSON">&#11014; Importar</button>
   <button id="btn-clear" title="Limpiar todo">&#128465; Limpiar</button>
+  <button class="tool-btn" id="btn-cloud-pull" title="Cargar anotaciones del cloud (sincronizacion con Steph)"><span class="ico">&#9729;</span> Cargar de cloud</button>
   <button class="tool-btn active" id="btn-track-changes" title="Marcar cambios al editar (verde=insert, rojo=delete)"><span class="ico">&#9986;</span> Cambios</button>
   <span class="spacer"></span>
   <a class="tool-btn" id="btn-full-thesis" href="revisor-tesis-v4-completa.html" target="_blank" rel="noopener" title="Abrir tesis completa interactiva en nueva pestaña"><span class="ico">&#128214;</span> Tesis completa</a>
@@ -1040,6 +1041,11 @@ aside.sidebar h2{
   'use strict';
 
   var STATE_KEY = 'revisor-tesis-v4-state';
+  // cloud sync via jsonblob.com (zero-auth JSON storage)
+  var CLOUD_BLOB_ID = '019e4452-6718-7679-9c3f-59938e770aea';
+  var CLOUD_URL = 'https://jsonblob.com/api/jsonBlob/' + CLOUD_BLOB_ID;
+  var cloudSyncTimeout = null;
+  var lastCloudPush = null;
 
   var state = {
     comments: [],
@@ -1138,6 +1144,60 @@ aside.sidebar h2{
   function scheduleSave(){
     clearTimeout(saveTimer);
     saveTimer = setTimeout(save, 800);
+    clearTimeout(cloudSyncTimeout);
+    cloudSyncTimeout = setTimeout(pushToCloud, 2500);
+  }
+
+  async function pushToCloud(){
+    try {
+      setStatus('Subiendo al cloud...');
+      var payload = {
+        comments: state.comments,
+        audios: state.audios,
+        inkStrokes: state.inkStrokes,
+        docHTML: els.editable.innerHTML,
+        version: STATE_KEY,
+        updatedAt: new Date().toISOString()
+      };
+      var resp = await fetch(CLOUD_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (resp.ok) {
+        lastCloudPush = new Date();
+        setStatus('Subido a cloud ' + lastCloudPush.toLocaleTimeString());
+      } else {
+        setStatus('Error sync HTTP ' + resp.status, true);
+      }
+    } catch (e) {
+      setStatus('Sin conexion cloud: ' + e.message, true);
+    }
+  }
+
+  async function pullFromCloud(){
+    if (state.comments.length > 0 || state.audios.length > 0 || state.inkStrokes.length > 0) {
+      if (!confirm('Vas a sobreescribir tus anotaciones locales con las del cloud. Continuar?')) return;
+    }
+    try {
+      setStatus('Descargando del cloud...');
+      var resp = await fetch(CLOUD_URL + '?_=' + Date.now(), { method: 'GET', headers: { 'Accept': 'application/json' } });
+      if (!resp.ok) { setStatus('Error pull HTTP ' + resp.status, true); return; }
+      var payload = await resp.json();
+      state.comments = payload.comments || [];
+      state.audios   = payload.audios   || [];
+      state.inkStrokes = payload.inkStrokes || [];
+      if (payload.docHTML && els.editable) els.editable.innerHTML = payload.docHTML;
+      renderComments();
+      if (typeof renderAudios === 'function') renderAudios();
+      if (typeof redrawInk === 'function') redrawInk();
+      if (typeof refreshObserver === 'function') refreshObserver();
+      save();
+      var ts = payload.updatedAt ? new Date(payload.updatedAt).toLocaleString() : '?';
+      setStatus('Cargado del cloud (actualizado ' + ts + ')');
+    } catch (e) {
+      setStatus('Sin conexion cloud: ' + e.message, true);
+    }
   }
 
   function load(){
@@ -1640,7 +1700,7 @@ aside.sidebar h2{
 
   // ============== CLEAR ==============
   function doClear(){
-    if (!confirm('Borrar todas las anotaciones y volver al estado inicial? Esto NO se puede deshacer.')) return;
+    if (!confirm('Borrar todas las anotaciones locales y volver al estado inicial? Esto NO se puede deshacer. Nota: esto NO limpia el cloud.')) return;
     localStorage.removeItem(STATE_KEY);
     location.reload();
   }
@@ -1653,6 +1713,8 @@ aside.sidebar h2{
   els.btnExport.addEventListener('click', doExport);
   els.btnImport.addEventListener('click', function(){ els.fileImport.click(); });
   els.btnClear.addEventListener('click', doClear);
+  var btnCloudPull = document.getElementById('btn-cloud-pull');
+  if (btnCloudPull) btnCloudPull.addEventListener('click', pullFromCloud);
   els.fileImport.addEventListener('change', function(ev){
     if (ev.target.files && ev.target.files[0]) doImport(ev.target.files[0]);
     ev.target.value = '';
@@ -1860,6 +1922,11 @@ aside.sidebar h2{
   resizeCanvas();
   refreshObserver();
   setStatus('Listo');
+  if (((state.comments && state.comments.length) || 0) === 0 &&
+      ((state.audios && state.audios.length) || 0) === 0 &&
+      ((state.inkStrokes && state.inkStrokes.length) || 0) === 0) {
+    setTimeout(pullFromCloud, 1500);
+  }
 })();
 
 </script>
