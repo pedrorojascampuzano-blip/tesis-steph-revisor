@@ -120,9 +120,11 @@ main#doc-root{
   position: absolute;
   top: 0; left: 0;
   pointer-events: none;
+  touch-action: none;
   z-index: 50;
 }
-body.pencil-mode #ink-canvas{ pointer-events: auto }
+body.pencil-mode #ink-canvas{ pointer-events: auto; touch-action: none }
+body.pencil-mode main#doc-root{ touch-action: none }
 body.pencil-mode #editable-content{ caret-color: transparent }
 
 header.doc-header{
