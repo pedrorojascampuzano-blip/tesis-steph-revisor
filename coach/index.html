@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a1a">
+<title>Tesis Coach &middot; Steph</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="app-header">
+    <h1>Tesis Coach</h1>
+    <p class="muted" id="header-sub">Carga tu plan para empezar</p>
+  </header>
+
+  <nav class="app-nav" role="tablist">
+    <button class="active" data-tab="hoy">Hoy</button>
+    <button data-tab="plan">Plan</button>
+    <button data-tab="setup">Setup</button>
+    <button data-tab="stats">Stats</button>
+  </nav>
+
+  <main class="app-view">
+
+    <section id="view-hoy" class="view active">
+      <div id="no-deadline" class="card hidden">
+        <h2>Define tu fecha l&iacute;mite</h2>
+        <p class="muted">Antes de empezar necesito saber para cu&aacute;ndo quieres terminar.</p>
+        <button class="btn btn-primary" data-go-tab="setup">Ir a Setup</button>
+      </div>
+
+      <div id="no-task" class="card hidden">
+        <h2>Sin tareas pendientes</h2>
+        <p class="muted">Terminaste todos los milestones. Compila y cierra.</p>
+      </div>
+
+      <div id="daily-card" class="daily-task hidden">
+        <div class="text-sm muted" id="daily-milestone-label"></div>
+        <div class="daily-title" id="daily-title"></div>
+        <div class="daily-slice" id="daily-slice"></div>
+        <div class="mt-4 text-sm muted">
+          Sesi&oacute;n sugerida: <strong id="daily-suggested">0</strong> min
+          &middot; meta del d&iacute;a: <strong id="daily-target">0</strong> min
+        </div>
+        <div class="mt-4" id="daily-actions">
+          <button class="btn btn-primary" id="btn-start">Empezar sesi&oacute;n</button>
+          <a class="btn btn-secondary" id="btn-open-revisor" href="../" target="_blank" rel="noopener">Abrir revisor</a>
+        </div>
+      </div>
+
+      <div id="timer-card" class="card hidden">
+        <div class="timer-display" id="timer-display">00:00</div>
+        <p class="muted" id="timer-task-label"></p>
+        <div class="mt-4">
+          <button class="btn btn-primary" id="btn-complete">Complet&eacute;</button>
+          <button class="btn btn-secondary" id="btn-incomplete">No alcanc&eacute;</button>
+          <button class="btn btn-ghost" id="btn-cancel">Cancelar</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-plan" class="view">
+      <div id="verdict-card" class="verdict-card">
+        <div class="verdict-message" id="verdict-msg">Sin datos.</div>
+        <div class="verdict-hint" id="verdict-hint"></div>
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <div class="label">D&iacute;as hasta deadline</div>
+          <div class="value-display" id="days-remaining">0</div>
+          <div class="text-sm muted" id="deadline-display"></div>
+        </div>
+        <div class="field mt-4">
+          <div class="label">Horas/d&iacute;a</div>
+          <input type="range" id="slider-hours" min="0.25" max="4" step="0.25" value="1">
+          <div class="value-display" id="hours-display">1.00 h</div>
+        </div>
+        <div class="field mt-4">
+          <div class="label">D&iacute;as activos</div>
+          <div class="day-toggles" id="active-days-row"></div>
+        </div>
+        <div class="field mt-4">
+          <div class="label">Mover deadline</div>
+          <input type="date" id="picker-deadline">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Reparto del tiempo</h2>
+        <div class="progress-stacked" id="progress-stacked"></div>
+        <div class="text-sm muted mt-2">
+          <span style="color:var(--green)">consumido</span>
+          &middot; <span style="color:var(--accent)">planeado</span>
+          &middot; <span class="muted">buffer</span>
+          &middot; <span style="color:var(--red)">d&eacute;ficit</span>
+        </div>
+        <div class="mt-4 text-sm">
+          Disponibles: <strong id="hrs-available">0</strong> h
+          &middot; Pendientes: <strong id="hrs-pending">0</strong> h
+        </div>
+      </div>
+    </section>
+
+    <section id="view-setup" class="view">
+      <div class="card">
+        <h2>Configura tu plan</h2>
+        <div class="field">
+          <div class="label">Fecha l&iacute;mite</div>
+          <input type="date" id="setup-deadline">
+        </div>
+        <div class="field mt-4">
+          <div class="label">Horas/d&iacute;a disponibles</div>
+          <input type="range" id="setup-hours" min="0.25" max="4" step="0.25" value="1">
+          <div class="value-display" id="setup-hours-display">1.00 h</div>
+        </div>
+        <div class="field mt-4">
+          <div class="label">D&iacute;as activos de la semana</div>
+          <div class="day-toggles" id="setup-active-days"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Estimaci&oacute;n por milestone</h2>
+        <p class="text-sm muted">Ajusta horas si tu estimaci&oacute;n es distinta.</p>
+        <ul class="milestone-list" id="setup-milestone-list"></ul>
+      </div>
+
+      <div class="card">
+        <h2>Backup</h2>
+        <button class="btn btn-secondary" id="btn-export">Exportar progreso</button>
+        <button class="btn btn-secondary" id="btn-import">Importar progreso</button>
+        <input type="file" id="file-import" accept="application/json" class="hidden">
+        <button class="btn btn-ghost" id="btn-reset" style="color:var(--red)">Borrar todo</button>
+      </div>
+    </section>
+
+    <section id="view-stats" class="view">
+      <div class="stats-grid">
+        <div class="stat-card card">
+          <div class="text-sm muted">Streak</div>
+          <div class="value-display" id="stat-streak">0</div>
+          <div class="text-sm muted">d&iacute;as seguidos</div>
+        </div>
+        <div class="stat-card card">
+          <div class="text-sm muted">Minutos invertidos</div>
+          <div class="value-display" id="stat-minutes">0</div>
+          <div class="text-sm muted">total acumulado</div>
+        </div>
+        <div class="stat-card card">
+          <div class="text-sm muted">Progreso global</div>
+          <div class="value-display" id="stat-progress">0%</div>
+          <div class="progress-bar mt-2">
+            <div class="progress-fill" id="stat-progress-bar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="stat-card card">
+          <div class="text-sm muted">Milestones cerrados</div>
+          <div class="value-display" id="stat-badges">0 / 9</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Milestones</h2>
+        <ul class="milestone-list" id="stats-milestone-list"></ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script type="module">
+import * as Sim from "./simulator.js";
+import * as Daily from "./daily.js";
+
+const DAY_LABELS = ["L","M","X","J","V","S","D"];
+
+let state = null;
+let roadmap = null;
+let timerInterval = null;
+let timerStartedAt = 0;
+
+async function boot() {
+  const res = await fetch("./roadmap.json");
+  roadmap = await res.json();
+  state = Daily.loadState() || Daily.defaultState();
+  state = Daily.hydrateFromRoadmap(state, roadmap);
+  Daily.saveState(state);
+  bindNav();
+  bindSetup();
+  bindPlan();
+  bindHoy();
+  bindBackup();
+  render();
+}
+
+function bindNav() {
+  document.querySelectorAll(".app-nav button").forEach(btn => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  });
+  document.querySelectorAll("[data-go-tab]").forEach(btn => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.goTab));
+  });
+}
+function switchTab(name) {
+  document.querySelectorAll(".app-nav button").forEach(b => {
+    b.classList.toggle("active", b.dataset.tab === name);
+  });
+  document.querySelectorAll(".view").forEach(v => {
+    v.classList.toggle("active", v.id === "view-" + name);
+  });
+  render();
+}
+
+function bindSetup() {
+  const deadlineInput = document.getElementById("setup-deadline");
+  const hoursInput = document.getElementById("setup-hours");
+  const hoursDisplay = document.getElementById("setup-hours-display");
+  const daysRow = document.getElementById("setup-active-days");
+
+  deadlineInput.addEventListener("change", e => {
+    state.setup.deadline = e.target.value;
+    Daily.saveState(state);
+    render();
+  });
+
+  hoursInput.addEventListener("input", e => {
+    state.setup.hoursPerDay = parseFloat(e.target.value);
+    hoursDisplay.textContent = state.setup.hoursPerDay.toFixed(2) + " h";
+    Daily.saveState(state);
+    render();
+  });
+
+  daysRow.innerHTML = "";
+  DAY_LABELS.forEach((label, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "day-toggle";
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+      state.setup.activeDays[idx] = !state.setup.activeDays[idx];
+      Daily.saveState(state);
+      render();
+    });
+    btn.dataset.idx = idx;
+    daysRow.appendChild(btn);
+  });
+}
+
+function renderSetup() {
+  const today = Daily.currentISODate();
+  const dlInput = document.getElementById("setup-deadline");
+  dlInput.min = today;
+  dlInput.value = state.setup.deadline || "";
+
+  document.getElementById("setup-hours").value = state.setup.hoursPerDay;
+  document.getElementById("setup-hours-display").textContent = state.setup.hoursPerDay.toFixed(2) + " h";
+
+  document.querySelectorAll("#setup-active-days .day-toggle").forEach(btn => {
+    const idx = parseInt(btn.dataset.idx, 10);
+    btn.classList.toggle("active", !!state.setup.activeDays[idx]);
+  });
+
+  const ul = document.getElementById("setup-milestone-list");
+  ul.innerHTML = "";
+  state.milestones.forEach(m => {
+    const li = document.createElement("li");
+    li.className = "milestone-item";
+    li.innerHTML = `
+      <div><strong>${m.id.toUpperCase()}</strong> ${escapeHtml(m.title)}</div>
+      <div class="mt-2">
+        <input type="number" min="0.5" max="40" step="0.5" value="${m.defaultHours}" data-mid="${m.id}" class="milestone-hours">
+        <span class="text-sm muted">h estimadas</span>
+      </div>
+    `;
+    ul.appendChild(li);
+  });
+  ul.querySelectorAll(".milestone-hours").forEach(input => {
+    input.addEventListener("change", e => {
+      const id = e.target.dataset.mid;
+      const val = parseFloat(e.target.value);
+      const m = state.milestones.find(x => x.id === id);
+      if (m && !isNaN(val) && val > 0) {
+        m.defaultHours = val;
+        Daily.saveState(state);
+        render();
+      }
+    });
+  });
+}
+
+function bindPlan() {
+  document.getElementById("slider-hours").addEventListener("input", e => {
+    state.setup.hoursPerDay = parseFloat(e.target.value);
+    Daily.saveState(state);
+    render();
+  });
+  document.getElementById("picker-deadline").addEventListener("change", e => {
+    state.setup.deadline = e.target.value;
+    Daily.saveState(state);
+    render();
+  });
+
+  const row = document.getElementById("active-days-row");
+  row.innerHTML = "";
+  DAY_LABELS.forEach((label, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "day-toggle";
+    btn.textContent = label;
+    btn.dataset.idx = idx;
+    btn.addEventListener("click", () => {
+      state.setup.activeDays[idx] = !state.setup.activeDays[idx];
+      Daily.saveState(state);
+      render();
+    });
+    row.appendChild(btn);
+  });
+}
+
+function renderPlan() {
+  const today = Daily.currentISODate();
+  const deadline = state.setup.deadline;
+
+  document.getElementById("hours-display").textContent = state.setup.hoursPerDay.toFixed(2) + " h";
+  document.getElementById("slider-hours").value = state.setup.hoursPerDay;
+
+  document.querySelectorAll("#active-days-row .day-toggle").forEach(btn => {
+    const idx = parseInt(btn.dataset.idx, 10);
+    btn.classList.toggle("active", !!state.setup.activeDays[idx]);
+  });
+
+  if (!deadline) {
+    document.getElementById("verdict-msg").textContent = "Define una fecha límite en Setup.";
+    document.getElementById("verdict-hint").textContent = "";
+    document.getElementById("verdict-card").className = "verdict-card";
+    document.getElementById("days-remaining").textContent = "0";
+    document.getElementById("deadline-display").textContent = "Sin deadline";
+    document.getElementById("hrs-available").textContent = "0";
+    document.getElementById("hrs-pending").textContent = "0";
+    renderProgressStacked(0, 0, 0);
+    return;
+  }
+
+  document.getElementById("picker-deadline").value = deadline;
+  document.getElementById("picker-deadline").min = today;
+
+  const daysRem = Sim.daysBetween(today, deadline);
+  document.getElementById("days-remaining").textContent = daysRem;
+  document.getElementById("deadline-display").textContent =
+    daysRem > 0 ? `hasta ${formatDate(deadline)}` : "Deadline vencido";
+
+  const available = Sim.availableHours({
+    today,
+    deadline,
+    hoursPerDay: state.setup.hoursPerDay,
+    activeDays: state.setup.activeDays
+  });
+  const pendingHrs = Sim.pendingHours(state.milestones);
+
+  document.getElementById("hrs-available").textContent = available.toFixed(1);
+  document.getElementById("hrs-pending").textContent = pendingHrs.toFixed(1);
+
+  const v = Sim.verdict({ available, needed: pendingHrs });
+  const card = document.getElementById("verdict-card");
+  card.className = "verdict-card " + v.status;
+  document.getElementById("verdict-msg").textContent = v.message;
+
+  if (v.status === "deficit") {
+    const adj = Sim.suggestAdjustments({
+      today, deadline,
+      hoursPerDay: state.setup.hoursPerDay,
+      activeDays: state.setup.activeDays,
+      needed: pendingHrs
+    });
+    const opts = [];
+    if (adj.extendDays) opts.push(`mover deadline ${adj.extendDays} días`);
+    if (adj.raiseHours) opts.push(`subir a ${adj.raiseHours.toFixed(2)} h/día`);
+    if (adj.addActiveDay !== null && adj.addActiveDay !== undefined) {
+      opts.push(`activar ${DAY_LABELS[adj.addActiveDay]}`);
+    }
+    document.getElementById("verdict-hint").textContent =
+      "Opciones: " + opts.join(" · ");
+  } else {
+    document.getElementById("verdict-hint").textContent = "";
+  }
+
+  const consumed = state.totalMinutes / 60;
+  renderProgressStacked(consumed, pendingHrs, available);
+}
+
+function renderProgressStacked(consumedHrs, pendingHrs, availableHrs) {
+  const wrap = document.getElementById("progress-stacked");
+  wrap.innerHTML = "";
+
+  const planned = Math.min(pendingHrs, availableHrs);
+  const buffer = Math.max(0, availableHrs - pendingHrs);
+  const deficit = Math.max(0, pendingHrs - availableHrs);
+  const total = Math.max(0.01, consumedHrs + planned + buffer + deficit);
+
+  const seg = (cls, hrs, color) => {
+    const d = document.createElement("div");
+    d.className = "segment " + cls;
+    d.style.flexBasis = (hrs / total * 100) + "%";
+    d.style.background = color;
+    d.title = `${hrs.toFixed(1)} h`;
+    return d;
+  };
+  if (consumedHrs > 0) wrap.appendChild(seg("done", consumedHrs, "var(--green)"));
+  if (planned > 0)     wrap.appendChild(seg("planned", planned, "var(--accent)"));
+  if (buffer > 0)      wrap.appendChild(seg("buffer", buffer, "var(--line)"));
+  if (deficit > 0)     wrap.appendChild(seg("deficit", deficit, "var(--red)"));
+}
+
+function bindHoy() {
+  document.getElementById("btn-start").addEventListener("click", () => {
+    const task = Daily.pickDailyTask(state);
+    if (!task) return;
+    state = Daily.startSession(state, task);
+    Daily.saveState(state);
+    showTimer(task);
+  });
+  document.getElementById("btn-complete").addEventListener("click", () => {
+    const minutes = stopTimerGetMinutes();
+    state = Daily.completeSession(state, minutes);
+    Daily.saveState(state);
+    hideTimer();
+    render();
+  });
+  document.getElementById("btn-incomplete").addEventListener("click", () => {
+    const minutes = stopTimerGetMinutes();
+    state = Daily.incompleteSession(state, minutes);
+    Daily.saveState(state);
+    hideTimer();
+    render();
+  });
+  document.getElementById("btn-cancel").addEventListener("click", () => {
+    stopTimerGetMinutes();
+    if (state.currentSession) {
+      const next = { ...state };
+      delete next.currentSession;
+      state = next;
+      Daily.saveState(state);
+    }
+    hideTimer();
+    render();
+  });
+}
+
+function renderHoy() {
+  const noDeadline = document.getElementById("no-deadline");
+  const noTask = document.getElementById("no-task");
+  const card = document.getElementById("daily-card");
+  const timerCard = document.getElementById("timer-card");
+
+  if (!state.setup.deadline) {
+    noDeadline.classList.remove("hidden");
+    noTask.classList.add("hidden");
+    card.classList.add("hidden");
+    timerCard.classList.add("hidden");
+    return;
+  }
+
+  noDeadline.classList.add("hidden");
+  if (state.currentSession) {
+    card.classList.add("hidden");
+    noTask.classList.add("hidden");
+    timerCard.classList.remove("hidden");
+    return;
+  }
+  timerCard.classList.add("hidden");
+
+  const task = Daily.pickDailyTask(state);
+  if (!task) {
+    noTask.classList.remove("hidden");
+    card.classList.add("hidden");
+    return;
+  }
+  noTask.classList.add("hidden");
+  card.classList.remove("hidden");
+
+  document.getElementById("daily-milestone-label").textContent =
+    `${task.milestoneId.toUpperCase()} · paso ${task.sliceIndex + 1}`;
+  document.getElementById("daily-title").textContent = task.milestoneTitle;
+  document.getElementById("daily-slice").textContent = task.sliceText;
+  document.getElementById("daily-suggested").textContent = task.suggestedMinutes;
+
+  const today = Daily.currentISODate();
+  const pendingHrs = Sim.pendingHours(state.milestones);
+  const target = Sim.dailyTargetMinutes({
+    today,
+    deadline: state.setup.deadline,
+    hoursPerDay: state.setup.hoursPerDay,
+    activeDays: state.setup.activeDays,
+    pendingHrs
+  });
+  document.getElementById("daily-target").textContent = target;
+
+  const milestone = roadmap.milestones.find(m => m.id === task.milestoneId);
+  const link = document.getElementById("btn-open-revisor");
+  if (milestone && milestone.revisorAnchor) {
+    link.href = "../#" + milestone.revisorAnchor;
+  } else {
+    link.href = "../";
+  }
+}
+
+function showTimer(task) {
+  document.getElementById("timer-task-label").textContent =
+    `${task.milestoneTitle} · paso ${task.sliceIndex + 1}`;
+  document.getElementById("timer-card").classList.remove("hidden");
+  document.getElementById("daily-card").classList.add("hidden");
+  timerStartedAt = Date.now();
+  updateTimerDisplay();
+  timerInterval = setInterval(updateTimerDisplay, 1000);
+}
+function updateTimerDisplay() {
+  const elapsedMs = Date.now() - timerStartedAt;
+  const totalSec = Math.floor(elapsedMs / 1000);
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
+  const ss = String(totalSec % 60).padStart(2, "0");
+  document.getElementById("timer-display").textContent = `${mm}:${ss}`;
+}
+function stopTimerGetMinutes() {
+  if (!timerInterval) return 0;
+  clearInterval(timerInterval);
+  timerInterval = null;
+  const elapsedMs = Date.now() - timerStartedAt;
+  return Math.max(0, Math.round(elapsedMs / 60000));
+}
+function hideTimer() {
+  document.getElementById("timer-card").classList.add("hidden");
+}
+
+function renderStats() {
+  document.getElementById("stat-streak").textContent = state.streak || 0;
+  document.getElementById("stat-minutes").textContent = state.totalMinutes || 0;
+  const frac = Sim.progressFraction(state.milestones);
+  const pct = Math.round(frac * 100);
+  document.getElementById("stat-progress").textContent = pct + "%";
+  document.getElementById("stat-progress-bar").style.width = pct + "%";
+  document.getElementById("stat-badges").textContent =
+    `${(state.badges || []).length} / ${state.milestones.length}`;
+
+  const ul = document.getElementById("stats-milestone-list");
+  ul.innerHTML = "";
+  state.milestones.forEach(m => {
+    const li = document.createElement("li");
+    li.className = "milestone-item";
+    const mpct = Math.round((m.progress || 0) * 100);
+    const status = m.completed ? "listo" : `${m.currentSliceIndex || 0}/${(m.atomicSlices || []).length}`;
+    li.innerHTML = `
+      <div><strong>${m.id.toUpperCase()}</strong> ${escapeHtml(m.title)}</div>
+      <div class="text-sm muted">${status} · ${m.defaultHours} h</div>
+      <div class="progress-bar mt-2"><div class="progress-fill" style="width:${mpct}%"></div></div>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function bindBackup() {
+  document.getElementById("btn-export").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `tesis-coach-${Daily.currentISODate()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+  document.getElementById("btn-import").addEventListener("click", () => {
+    document.getElementById("file-import").click();
+  });
+  document.getElementById("file-import").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const next = JSON.parse(ev.target.result);
+        if (!next.setup || !Array.isArray(next.milestones)) {
+          alert("Archivo no parece progreso válido.");
+          return;
+        }
+        state = next;
+        Daily.saveState(state);
+        render();
+        alert("Progreso importado.");
+      } catch (err) {
+        alert("Error al leer el archivo.");
+      }
+    };
+    reader.readAsText(file);
+  });
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    if (!confirm("Borrar TODO el progreso?")) return;
+    state = Daily.defaultState();
+    state = Daily.hydrateFromRoadmap(state, roadmap);
+    Daily.saveState(state);
+    render();
+  });
+}
+
+function render() {
+  renderSetup();
+  renderPlan();
+  renderHoy();
+  renderStats();
+  renderHeader();
+}
+
+function renderHeader() {
+  const sub = document.getElementById("header-sub");
+  if (!state.setup.deadline) {
+    sub.textContent = "Sin deadline. Ve a Setup.";
+    return;
+  }
+  const days = Sim.daysBetween(Daily.currentISODate(), state.setup.deadline);
+  if (days <= 0) {
+    sub.textContent = "Deadline vencido. Reajusta en Setup.";
+  } else {
+    const v = Sim.verdict({
+      available: Sim.availableHours({
+        today: Daily.currentISODate(),
+        deadline: state.setup.deadline,
+        hoursPerDay: state.setup.hoursPerDay,
+        activeDays: state.setup.activeDays
+      }),
+      needed: Sim.pendingHours(state.milestones)
+    });
+    const tag = v.status === "ok" ? "vas bien" : v.status === "tight" ? "ajustado" : "déficit";
+    sub.textContent = `${days} días · ${tag}`;
+  }
+}
+
+function formatDate(iso) {
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[c]);
+}
+
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+{
+  "version": "v4-2026-05-19",
+  "title": "Acceso a la justicia migratoria aeroportuaria",
+  "totalWordsTarget": 90000,
+  "milestones": [
+    {
+      "id": "m1",
+      "order": 1,
+      "title": "Reescribir indice segun TOC del briefing v4",
+      "description": "Actualiza indice.md para reflejar la nueva estructura de 5 capitulos del briefing v4. Renombra secciones y renumera entradas para que cuadren con cap I (1.1-1.3), cap II (2.1-2.6 con 2.5 y 2.6 nuevas), cap III (3.1-3.6), cap IV (4.1-4.5) y cap V (5.1-5.7).",
+      "chapter": "indice",
+      "defaultHours": 2,
+      "revisorAnchor": null,
+      "atomicSlices": [
+        "Abrir indice.md v3.1 y briefing TESIS-PR-26.doc lado a lado",
+        "Listar TOC v3.1 actual en scratch para comparar contra briefing",
+        "Reescribir TOC del Cap I consolidando 7 subsecciones en 3",
+        "Reescribir TOC del Cap II agregando 2.5 Debida diligencia y 2.6 Buena administracion",
+        "Reescribir TOC del Cap III renumerando y agregando 3.6 Aerolineas",
+        "Reescribir TOC del Cap IV consolidando 8 en 5 subsecciones",
+        "Reescribir TOC del Cap V con fases 0-4h y 4-24h del protocolo minimo"
+      ]
+    },
+    {
+      "id": "m2",
+      "order": 2,
+      "title": "Editar introduccion seccion 0.7 estructura del trabajo",
+      "description": "Reescribe el parrafo de estructura del trabajo en introduccion.md para describir los 5 capitulos del briefing v4. Mantiene la hipotesis invertida y el resto de la intro intacto.",
+      "chapter": "intro",
+      "defaultHours": 2,
+      "revisorAnchor": "introduccion",
+      "atomicSlices": [
+        "Leer introduccion.md v3.1 completa y localizar seccion 0.7",
+        "Redactar parrafo nuevo describiendo Cap I (movilidad y control aeroportuario)",
+        "Redactar parrafo describiendo Cap II (estandar constitucional e interamericano)",
+        "Redactar parrafos para Caps III IV V con enfoque v4",
+        "Revisar transiciones y quitar em-dashes residuales"
+      ]
+    },
+    {
+      "id": "m3",
+      "order": 3,
+      "title": "Reorganizar Cap I consolidando 7 a 3 secciones",
+      "description": "Toma capitulo-01.md v3.1 (1.1 a 1.7) y consolida en 3 secciones segun briefing: movilidad internacional, control migratorio aeroportuario y marco normativo basico. Conserva el contenido, solo reagrupa y reescribe los puentes.",
+      "chapter": "I",
+      "defaultHours": 5,
+      "revisorAnchor": "cap-1",
+      "atomicSlices": [
+        "Leer capitulo-01.md v3.1 entero y marcar bloques tematicos",
+        "Mapear cada subseccion 1.1-1.7 a una de las 3 nuevas (1.1 1.2 1.3)",
+        "Fusionar bloques de 1.1 v3.1 + relevantes en nueva 1.1",
+        "Redactar puente narrativo de 200 palabras nuevo 1.1",
+        "Fusionar bloques que componen nueva 1.2 control aeroportuario",
+        "Redactar puente narrativo 1.2",
+        "Fusionar bloques restantes en nueva 1.3 marco basico",
+        "Redactar puente 1.3 y revisar coherencia global del capitulo",
+        "Verificar citas APA y refs cruzadas que cambiaron de numero"
+      ]
+    },
+    {
+      "id": "m4",
+      "order": 4,
+      "title": "Cap II: redactar seccion 2.5 y 2.6 nuevas",
+      "description": "Redactar desde cero 2.5 Debida diligencia y 2.6 Buena administracion publica en capitulo-02.md. Son secciones nuevas que el briefing v4 exige y que no existen en v3.1. Anclar a Corte IDH (Velasquez Rodriguez) y a doctrina constitucional mexicana.",
+      "chapter": "II",
+      "defaultHours": 16,
+      "revisorAnchor": "cap-2-sec-2-5",
+      "atomicSlices": [
+        "Investigar estandar debida diligencia en sistema interamericano",
+        "Leer Velasquez Rodriguez 1988 parrs 166-177 y extraer citas clave",
+        "Outline 2.5: 5 subapartados con bullets",
+        "Redactar 500 palabras intro 2.5 con caso aeroportuario",
+        "Redactar 500 palabras sobre estandar Corte IDH",
+        "Redactar 500 palabras sobre aplicacion al INM",
+        "Redactar 500 palabras sobre debida diligencia reforzada en grupos vulnerables",
+        "Redactar cierre 2.5 con tesis del capitulo (~300 palabras)",
+        "Citar Velasquez Rodriguez 1988 parr 166 y verificar APA",
+        "Investigar buena administracion publica TFJA y derecho comparado",
+        "Outline 2.6 con 4 subapartados",
+        "Redactar 500 palabras intro 2.6 conceptualizacion",
+        "Redactar 500 palabras sobre derecho a buena administracion en CADH",
+        "Redactar 500 palabras aplicacion procesal aeroportuaria",
+        "Redactar cierre 2.6 (~400 palabras) con puente a Cap III",
+        "Revisar 2.5 y 2.6 completas, integrar referencias en referencias.md"
+      ]
+    },
+    {
+      "id": "m5",
+      "order": 5,
+      "title": "Cap III: redactar 3.6 aerolineas y renumerar",
+      "description": "Redactar 3.6 Interaccion con aerolineas como seccion nueva en capitulo-03.md. Renumerar el resto del capitulo III para encajar el TOC v4 (3.1-3.6) consolidando subsecciones de impugnacion que en v3.1 estaban dispersas.",
+      "chapter": "III",
+      "defaultHours": 10,
+      "revisorAnchor": "cap-3-sec-3-6",
+      "atomicSlices": [
+        "Mapear secciones 3.1-3.8 v3.1 contra TOC v4 3.1-3.6",
+        "Renumerar headers en capitulo-03.md sin tocar contenido aun",
+        "Consolidar bloques de impugnacion dispersos en seccion unificada",
+        "Investigar marco normativo Ley Aviacion Civil y obligaciones aerolineas",
+        "Outline 3.6 con 4 subapartados: marco LAC, deber transporte retorno, coordinacion con INM, casos",
+        "Redactar 500 palabras intro 3.6 sobre rol aerolineas en cadena migratoria",
+        "Redactar 500 palabras sobre obligaciones legales aerolineas",
+        "Redactar 500 palabras sobre coordinacion operativa con INM",
+        "Redactar 500 palabras sobre conflictos de derechos y casos documentados",
+        "Redactar cierre 3.6 (~400 palabras) puente al diagnostico de Cap IV",
+        "Revisar refs cruzadas 3.x y validar APA"
+      ]
+    },
+    {
+      "id": "m6",
+      "order": 6,
+      "title": "Cap IV: consolidar 8 a 5 subsecciones",
+      "description": "Reorganizar capitulo-04.md de 8 subsecciones de diagnostico (4.1-4.8 v3.1) a 5 segun briefing v4 (4.1-4.5). Reagrupa hallazgos sin perder evidencia y reescribe los puentes entre subsecciones.",
+      "chapter": "IV",
+      "defaultHours": 5,
+      "revisorAnchor": "cap-4",
+      "atomicSlices": [
+        "Listar las 8 subsecciones v3.1 con sus hallazgos principales en scratch",
+        "Mapear cada hallazgo a una de las 5 nuevas (4.1 4.2 4.3 4.4 4.5)",
+        "Reagrupar contenido en nueva 4.1 con 200 palabras de puente",
+        "Reagrupar contenido en nueva 4.2 con puente",
+        "Reagrupar contenido 4.3 con puente",
+        "Reagrupar contenido 4.4 con puente",
+        "Reagrupar contenido 4.5 con cierre del capitulo",
+        "Verificar tablas y referencias internas renumeradas"
+      ]
+    },
+    {
+      "id": "m7",
+      "order": 7,
+      "title": "Cap V: renombrar PUGREMA y reorganizar por fases",
+      "description": "Renombrar PUGREMA a Protocolo minimo en todo capitulo-05.md. Reestructurar las 8 subsecciones v3.1 en 7 fases segun briefing v4 con bloques 0-4h y 4-24h. Mantiene contenido procedimental, solo cambia framing temporal.",
+      "chapter": "V",
+      "defaultHours": 6,
+      "revisorAnchor": "cap-5",
+      "atomicSlices": [
+        "Buscar y reemplazar PUGREMA por Protocolo minimo en capitulo-05.md",
+        "Listar 8 subsecciones v3.1 con sus etapas procedimentales",
+        "Disenar nueva estructura 5.1 marco, 5.2 fase 0-4h, 5.3 fase 4-24h, 5.4-5.7",
+        "Redactar 400 palabras intro 5.1 marco general del protocolo",
+        "Reagrupar contenido en fase 0-4h con 300 palabras puente",
+        "Reagrupar contenido en fase 4-24h con 300 palabras puente",
+        "Redactar transiciones entre subsecciones 5.4-5.7",
+        "Verificar diagramas de flujo y refs a apendices"
+      ]
+    },
+    {
+      "id": "m8",
+      "order": 8,
+      "title": "Conclusiones en tono conversacional",
+      "description": "Reescribir conclusiones.md cambiando el tono academico a conversacional segun pide el briefing v4. Mantiene la sustancia de los hallazgos pero usa primera persona moderada y oraciones mas cortas.",
+      "chapter": "conclusiones",
+      "defaultHours": 4,
+      "revisorAnchor": "conclusiones",
+      "atomicSlices": [
+        "Leer conclusiones.md v3.1 y marcar parrafos academicos tipicos",
+        "Identificar las 5 conclusiones principales en bullets",
+        "Reescribir conclusion 1 en tono conversacional (~250 palabras)",
+        "Reescribir conclusion 2 (~250 palabras)",
+        "Reescribir conclusion 3 (~250 palabras)",
+        "Reescribir conclusion 4 (~250 palabras)",
+        "Reescribir conclusion 5 (~250 palabras)",
+        "Redactar parrafo final de cierre con llamado a futura agenda de investigacion"
+      ]
+    },
+    {
+      "id": "m9",
+      "order": 9,
+      "title": "Compilar INTEGRADORA y exportar a docx",
+      "description": "Compilar todos los .md de v4 en un INTEGRADORA.md ordenado y correr pandoc para generar docx final. Subir espejo a Notion como version v4 lista para revision de Steph.",
+      "chapter": "compilacion",
+      "defaultHours": 2,
+      "revisorAnchor": null,
+      "atomicSlices": [
+        "Verificar que todos los .md de v4 existen y compilan sin errores",
+        "Concatenar en orden: portada, resumen, indice, intro, caps 1-5, conclusiones, refs, apendices",
+        "Correr pandoc INTEGRADORA.md a docx con estilo APA",
+        "Validar que el docx abre limpio en Word y conserva headings",
+        "Subir docx a Notion como espejo v4 con tag listo-para-revision"
+      ]
+    }
+  ]
+}
